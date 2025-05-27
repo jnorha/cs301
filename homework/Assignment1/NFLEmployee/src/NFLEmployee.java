@@ -10,6 +10,7 @@
  * 
  */
 
+
 public class NFLEmployee {
 	//Attributes
 	private String name;
@@ -123,11 +124,16 @@ public class NFLEmployee {
 	/**
 	* Method: newContract
 	* Function:update an employee's information based on new contract terms. Updates the job title, salary, and contract end time attributes.
-	* @param newTitle, newSalary, newEndYear
+	* @param String newTitle, int newSalary, int newEndYear
 	* @return NFLEmployee with updated values
 	*/
 	
-	<placeholder>
+	public void newContract(String newTitle, int newSalary, int newEndYear) {
+		this.title = newTitle;
+		this.salary = newSalary;
+		this.endYear = newEndYear;
+		
+	}
 	
 	/**
 	* Method: calcTax
@@ -136,12 +142,51 @@ public class NFLEmployee {
 	* @return annualFedTax
 	*/
 	
-	<placeholder>
+	public double calcTax() {
+		//calculate the annual federal tax based on their salary bracket
+		double fedTax = 0;
+		if(this.salary<=11925) {
+			fedTax = this.salary * 0.10;
+		}
+		else if(11926<this.salary && this.salary<=48475) {
+			fedTax = this.salary * 0.12;
+		}
+		else if(48475<this.salary && this.salary<=103350) {
+			fedTax = this.salary * 0.22;
+		}
+		else if(103350<this.salary && this.salary<=197300) {
+			fedTax = this.salary * 0.24;
+		}
+		else if(197300<this.salary && this.salary<=250525) {
+			fedTax = this.salary * 0.32;
+		}
+		else if(250525<this.salary && this.salary<=626350) {
+			fedTax = this.salary * 0.35;
+		}
+		else {
+			fedTax = this.salary * 0.37;
+		}
+		
+		return fedTax;
+	}
 	
 	/**
 	* Method: printPayStub
 	* Function:prints a pay stub for each month for an employee which includes their  (i) Employee name; (ii) Monthly salary; (iii) monthly Federal tax; (iv) Monthly net pay in one row.
-	* @param employeeName
-	* @return payStub
+	* @param none. Just return the attributes and call any of the methods necessary for calculating
+	* @return none. Just print the pay stub
 	*/
+	
+	public void printPayStub() {
+		//Print out name, weight, height, BMI value, and health status
+		double monthlySalary = this.salary / 12;
+		double annualfedTax = calcTax();
+		double monthlyTax = annualfedTax / 12;
+		double netMonthPay = monthlySalary - monthlyTax;
+		System.out.printf("%24s %20s %20s %20s \n", "Employee Name", "Monthly salary",
+		"Monthly Federal tax", "Monthly net pay");
+		System.out.printf("%24s %20.2f %20.2f %20.2f \n", name, monthlySalary,
+				monthlyTax, netMonthPay);
+		
+	}
 }
