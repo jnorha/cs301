@@ -4,7 +4,7 @@
  * 		A class that defines the attributes and operations about an NFL employee
  * Name: Josh Daniels
  * Wisc Email: jndaniels@wisc.edu
- * Date:	finish date
+ * Date:	05/28/2025
  * Version:	1.0
  * @see NFLEmployee class 
  * 
@@ -54,15 +54,18 @@ public class NFLEmployee {
 	}
 	
 	// Now for the Integers with check logic
-	public void setSalary(int salary) {
-		if(salary < 15080) {
-			System.out.println("Less than minimum wage in 2023?? Are they working for tips?? This can't be right.");
+	public void setSalary(int valSalary) {
+		this.salary = 0;
+		if(valSalary < 15080) {
+			System.out.println("Less than minimum wage in 2023?? Are they working for tips?? This can't be right. Setting low end default salary value of 500000.");
+			this.salary = 500000;
 		}
-		else if(salary > 1000000000) {
-			System.out.println("More than a billion dollars?? Can I get a raise?? This can't be right.");
+		else if(valSalary > 1000000000) {
+			System.out.println("More than a billion dollars?? Can I get a raise?? This can't be right. Setting high end default salary value of 8000000.");
+			this.salary = 8000000;
 		}
 		else {
-			this.salary = salary;
+			this.salary = valSalary;
 		}
 	}
 	
@@ -71,10 +74,11 @@ public class NFLEmployee {
 	}
 
 	public void setEndYear(int contractEndYear){
+		this.endYear = 0;
 		//Make sure the contract end year is realistic
-		if(contractEndYear < 2023){
-			System.out.println("The contract end year is invalid!");
-			this.endYear = 2023;
+		if(contractEndYear <= 2023){
+			System.out.println("The contract end year is invalid! Must be 2024 or later. Setting default value of 2024.");
+			this.endYear = 2024;
 		}
 		else{
 			this.endYear = contractEndYear;

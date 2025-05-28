@@ -4,7 +4,7 @@
  * 		gathers all the necessary information for an employee and generates the new object
  * Name: Josh Daniels
  * Wisc Email: jndaniels@wisc.edu
- * Date:	finish date
+ * Date:	05/28/2025
  * Version:	1.0
  * @see NFLEmployee class 
  * 
@@ -38,6 +38,8 @@ public class NFLManagement {
 		
 		if(newEmployee.getEndYear() <= 2024) {
 			System.out.println("This employee's contract has expired. Their contract record should be remvoed from the database.");
+			System.out.println("Expired Employee Contract Info:");
+			System.out.println("Name="+newEmployee.getName()+", Team="+newEmployee.getTeam()+", Job Category="+newEmployee.getJobCategory()+", Title="+newEmployee.getTitle()+", Salary="+newEmployee.getSalary()+", Contract End Year="+newEmployee.getEndYear());
 		}
 		else if(newEmployee.getEndYear() == 2025) {
 			Scanner newScanner = new Scanner(System.in);
@@ -50,7 +52,7 @@ public class NFLManagement {
 			int newEndYear = newScanner.nextInt();
 			
 			newEmployee.newContract(newJobTitle, newSalary, newEndYear);
-			System.out.println("Employee Contract Info:");
+			System.out.println("Updated Employee Contract Info:");
 			System.out.println("Name="+newEmployee.getName()+", Team="+newEmployee.getTeam()+", Job Category="+newEmployee.getJobCategory()+", Title="+newEmployee.getTitle()+", Salary="+newEmployee.getSalary()+", Contract End Year="+newEmployee.getEndYear());
 		}
 		else {
@@ -59,6 +61,8 @@ public class NFLManagement {
 		}
 		
 		//Call the printPayStub method of the NFLEmployee object to generate their monthly pay stub
+		System.out.println("Employee Monthly Pay Stub:");
 		newEmployee.printPayStub();
+	
 		}
 }
