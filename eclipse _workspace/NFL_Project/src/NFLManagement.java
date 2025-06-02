@@ -78,6 +78,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		System.out.println(" ========== Personnel PayStub Management Menu ==============");
 		System.out.println(" 1 - Print Paystub for Specific Employee");
 		System.out.println(" 2 - Print Paystubs for the Highest and Lowest Salary Employees");
+		System.out.println(" 3 - Print Paystubs a Specific Team on screen and also generate text files for ALL employee contracts, nested within team directory");
 		System.out.println(" Others - exit");
 		System.out.println(" Your choice:");
 		
@@ -108,6 +109,13 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			printHighLow(fileName);
 			break;
 			
+		case 3:
+			//manageContract(fileName);
+			System.out.println("Team name?");
+			Scanner inputTeamName = new Scanner(System.in);
+			String teamNameChoice = inputTeamName.nextLine();
+			teamPayStubs(fileName, teamNameChoice);
+			break;
 		default:
 			System.out.println("Invalid choice, exiting ...");
 			return;
@@ -163,7 +171,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 	
 	/**
 	 * Method: Print the highest and lowest paid employees
-	 * @param none
+	 * @param string fileName
 	 * @return none - just prints the high and low
 	 */
 	
@@ -227,6 +235,95 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		}
 		
 		
+	}
+	
+	
+	/**
+	 * Method: Print all the paystubs for a given team
+	 * @param string fileName, string teamName
+	 * @return none - prints all the pay stubs of a given team and also writes to a new folder/file about the players
+	 */
+	
+	public static void teamPayStubs(String fileName, String targetTeamName) {
+		// borrowing our array creator from before
+		//NOTE **This should be its own method, and if I could figure out how to return an object array from a method I would make it one
+
+		List<String[]> listArrayStrings = new ArrayList<>();
+		
+		try {
+			File inFile = new File(fileName);
+
+			FileReader  fileReader = new FileReader(inFile);
+			BufferedReader bufferReader = new BufferedReader(fileReader);
+
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
+
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				listArrayStrings.add(lineStrings); 
+				inputStr = bufferReader.readLine();
+			}
+
+			// test the list of arrays
+			//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+			
+			// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+			int fileLength = listArrayStrings.size();
+			NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+
+			for(int i=0;i<fileLength;i++) {
+				
+				String[] lineStrings = listArrayStrings.get(i);
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
+				
+				allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+			}
+			
+			
+			//Check our array
+			//System.out.println("This is the last employee in the object array " + allEmployees[175].getName());
+			
+			/*
+			//Build for loop to gather all available team names into a list
+			List<String> teamList = new ArrayList<String>();
+			
+			for(int i=0;i<fileLength;i++) {
+				String empTeamName = allEmployees[i].getTeam();
+				if(!teamList.contains(empTeamName)) {
+					teamList.add(empTeamName);
+				}
+			}
+			*/ 
+			
+			//Actually, i think java will just build the folder's and nest accordingly.
+			for(int i=0;i<fileLength;i++) {
+				String theTeamName = allEmployees[i].getTeam();
+				String thePlayerName[] = allEmployees[i].getName().split(" ");
+				String thePlayerFullName = thePlayerName[0] + thePlayerName[1];
+				if(allEmployees[i].getTeam().equals(targetTeamName)) {
+					allEmployees[i].printPayStub();
+				}
+				else {
+					;
+				}
+				String newFileName = theTeamName+"/"+ thePlayerFullName + ".txt";
+				//Test it out before writing files like a madman
+				System.out.println(newFileName);
+			
+			}
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }
