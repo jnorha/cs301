@@ -37,9 +37,7 @@ public class CalculateBMI {
 		double bmi=0;
 		final int CONVERT_FT_TO_IN=12;
 		
-		Person person1 = new Person(name, weight, height ..args.)
-		person1.printHealthReport() 
-		
+
 		Scanner pullstuff;
 		pullstuff = new Scanner(System.in);
 
