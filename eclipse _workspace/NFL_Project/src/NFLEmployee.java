@@ -185,7 +185,7 @@ public class NFLEmployee {
 	*/
 	
 	public void printPayStub() {
-		//Print out name, weight, height, BMI value, and health status
+		//Print out name, and salary information
 		double monthlySalary = this.salary / 12;
 		double annualfedTax = calcTax();
 		double monthlyTax = annualfedTax / 12;
@@ -194,6 +194,28 @@ public class NFLEmployee {
 		"Monthly Federal tax", "Monthly net pay");
 		System.out.printf("%24s %20.2f %20.2f %20.2f \n", name, monthlySalary,
 				monthlyTax, netMonthPay);
+		
+	}
+	
+	/**
+	* Method: printPayStub
+	* Function:prints a pay stub for each month for an employee which includes their  (i) Employee name; (ii) Monthly salary; (iii) monthly Federal tax; (iv) Monthly net pay in one row.
+	* @param none. Just return the attributes and call any of the methods necessary for calculating
+	* @return none. Just print the pay stub
+	*/
+	
+	public void printContract() {
+		//Print out name, and contract information
+		String employeeName = this.getName();
+		String employeeTeam = this.getTeam();
+		String employeeCategory = this.getJobCategory();
+		String employeeTitle = this.getTitle();
+		int employeeExpires = this.getEndYear();
+		double employeeSalary = this.salary;
+		System.out.printf("%24s %20s %20s %20s %20s %20s \n", "Employee Name", "Team",
+		"Job Category", "Title", "Salary", "Contract Expiring");
+		System.out.printf("%24s %20s %20s %20s %20.2f %20d \n", employeeName, employeeTeam,
+				employeeCategory, employeeTitle, employeeSalary,employeeExpires);
 		
 	}
 }

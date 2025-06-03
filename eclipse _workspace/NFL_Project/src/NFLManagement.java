@@ -40,8 +40,8 @@ public class NFLManagement {
 		//Do the detailed management operations based on the choice
 		switch(choice) {
 			case 1:
-				//manageContract(fileName);
-				System.out.println("To be done");
+				manageContract(fileName);
+				//System.out.println("To be done");
 				
 				break;
 				
@@ -125,7 +125,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		
 	}
 	
-//--// METHODS FOR MANAGE PAYSTUB
+//--// METHODS FOR MANAGE PAYSTUB _______--------------------------------------___________________________
 	
 	/** 
 	 * Method: Print the paystub for the specific employee
@@ -363,9 +363,191 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			System.err.println("IOException: " + ioe.getMessage());
 		}
 	}
-	
-}
 
+	
+//--// METHODS FOR MANAGE CONTRACT _______--------------------------------------___________________________
+
+	
+	/**
+	 * Method: primary manage contract method. Prints options
+	 * @param string fileName
+	 * @return none - presents all of the next options for managing contracts
+	 */
+		public static void manageContract(String fileName) {
+		
+		// add a new men
+		System.out.println(" ========== Personnel Contract Management Menu ==============");
+		System.out.println(" 1 - Print Contract for Specific Employee");
+		System.out.println(" 2 - Print Total Salary of players on a given team");
+		System.out.println(" 3 - Manage Contract Taxes");
+		System.out.println(" Others - exit");
+		System.out.println(" Your choice:");
+		
+		
+		
+		// new scanner
+		Scanner inputContracts = new Scanner(System.in);
+		int contractChoice = inputContracts.nextInt();
+		
+		switch(contractChoice) {
+		case 1:
+			//manageContract(fileName);
+			System.out.println("Employee name?");
+			Scanner inputEmployeeName = new Scanner(System.in);
+			String employeeNameChoice = inputEmployeeName.nextLine();
+			//employeeNameChoice.printPayStub();
+			if (employeeNameChoice != null) {
+				targetPrintContract(employeeNameChoice, fileName);
+			}
+			else {
+				System.out.println("Something Went Wrong");
+			}
+		
+			
+			break;
+			
+		case 2:
+			//get the input for what team and year
+			System.out.println("Team name?");
+			Scanner inputTeamNameAndYear = new Scanner(System.in);
+			String teamName = inputTeamNameAndYear.nextLine();
+			System.out.println("Target season Salary Cap cutoff?");
+			int targetYear = inputTeamNameAndYear.nextInt();
+			printTeamSalary(fileName, teamName, targetYear);
+			break;
+			
+		case 3:
+			//manageContract(fileName);
+			System.out.println("Team name?");
+			Scanner inputTeamName = new Scanner(System.in);
+			String teamNameChoice = inputTeamName.nextLine();
+			teamPayStubs(fileName, teamNameChoice);
+			break;
+		default:
+			System.out.println("Invalid choice, exiting ...");
+			return;
+					
+		}
+	
+		
+	}
+		
+	/** 
+	 * Method: Print the contract for the specific employee
+	 * @param employeeName of the person you want printed
+	 * @return none - prints out the contract for that person
+	 * NOTE: I did this one by copying the other so thats why it doesnt use object array, before realizing I would need a list/array/sorting function for other questions. Could revisit and try to re write but I think it works.
+	 */
+		
+		public static void targetPrintContract(String givenEmployeeName, String fileName) {
+			try {
+				File inFile = new File(fileName);
+
+				FileReader  fileReader = new FileReader(inFile);
+				BufferedReader bufferReader = new BufferedReader(fileReader);
+
+				String inputStr = bufferReader.readLine();
+				inputStr = bufferReader.readLine();
+
+				while(inputStr != null ) {
+					//Create an object for each record read in
+					String lineStrings [] = inputStr.split(",");
+				
+					String playerName = lineStrings[0];
+					String teamName = lineStrings[1];
+					String category = lineStrings[2];
+					String title = lineStrings[3];
+					int salary = Integer.parseInt(lineStrings[4]);
+					int expirationYear = Integer.parseInt(lineStrings[5]);
+					
+					NFLEmployee employee = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+					if (employee.getName().equals(givenEmployeeName)){
+						//Call the old print paystub method to print this persons stuff
+						employee.printContract();
+					}
+					
+					inputStr = bufferReader.readLine();
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	
+		/**
+		 * Method: Print the joined salary for a given team
+		 * @param string fileName, string teamName
+		 * @return none - prints one total value for the whole teams salary
+		 */
+		
+		public static void printTeamSalary(String fileName, String targetTeamName, int targetYear) {
+			// borrowing our array creator from before
+			//NOTE **This should be its own method, and if I could figure out how to return an object array from a method I would make it one
+
+			List<String[]> listArrayStrings = new ArrayList<>();
+			
+			try {
+				File inFile = new File(fileName);
+
+				FileReader  fileReader = new FileReader(inFile); 
+				BufferedReader bufferReader = new BufferedReader(fileReader);
+
+				String inputStr = bufferReader.readLine();
+				inputStr = bufferReader.readLine();
+
+				while(inputStr != null ) {
+					//Create an object for each record read in
+					String lineStrings [] = inputStr.split(",");
+					listArrayStrings.add(lineStrings); 
+					inputStr = bufferReader.readLine();
+				}
+
+				// test the list of arrays
+				//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+				
+				// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+				int fileLength = listArrayStrings.size();
+				NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+
+				for(int i=0;i<fileLength;i++) {
+					
+					String[] lineStrings = listArrayStrings.get(i);
+					String playerName = lineStrings[0];
+					String teamName = lineStrings[1];
+					String category = lineStrings[2];
+					String title = lineStrings[3];
+					int salary = Integer.parseInt(lineStrings[4]);
+					int expirationYear = Integer.parseInt(lineStrings[5]);
+					
+					allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+				}
+				
+				//Grab the employees for the given team with contracts that expire AFTER the given year and start adding them up
+				int teamTotal = 0;
+				for(int i=0;i<fileLength;i++) {
+					if(allEmployees[i].getTeam().equals(targetTeamName) && allEmployees[i].getEndYear() > targetYear) {
+						teamTotal = teamTotal+allEmployees[i].getSalary();
+					}
+					else {
+						;
+					}
+				//for loop end
+				}
+
+				//now to print out the team total
+				System.out.println("The total Team Salary for contracts extending beyond "+targetYear+" is "+teamTotal);
+				
+			} 
+			catch(IOException ioe) {
+				System.err.println("IOException: " + ioe.getMessage());
+			}
+		}
+		
+		
+		
+	
+// this one is end of main method
+}
 
 
 
