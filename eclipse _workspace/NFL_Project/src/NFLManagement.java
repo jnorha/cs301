@@ -313,20 +313,59 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 				else {
 					;
 				}
-				String newFileName = theTeamName+"/"+ thePlayerFullName + ".txt";
+				String newFileName ="C:\\temp\\" +  theTeamName+"\\Stub" + thePlayerFullName + ".txt";
 				//Test it out before writing files like a madman
-				System.out.println(newFileName);
+				//System.out.println(newFileName);
+				try {
+					FileWriter fw = new FileWriter(newFileName,true);
+					double playerSalary = allEmployees[i].getSalary();
+					double monthlySalary = allEmployees[i].getSalary() / 12;
+					double fedTax = 0.0;
+					if(playerSalary<=11925) {
+						fedTax = playerSalary * 0.10;
+					}
+					else if(11926<playerSalary && playerSalary<=48475) {
+						fedTax = playerSalary * 0.12;
+					}
+					else if(48475<playerSalary && playerSalary<=103350) {
+						fedTax = playerSalary * 0.22;
+					}
+					else if(103350<playerSalary && playerSalary<=197300) {
+						fedTax = playerSalary * 0.24;
+					}
+					else if(197300<playerSalary && playerSalary<=250525) {
+						fedTax = playerSalary * 0.32;
+					}
+					else if(250525<playerSalary && playerSalary<=626350) {
+						fedTax = playerSalary * 0.35;
+					}
+					else {
+						fedTax = playerSalary * 0.37;
+					}
+					double monthlyTax = fedTax / 12;
+					double netMonthPay = monthlySalary - monthlyTax;
+					String fileHeader = String.format("%24s %20s %20s %20s \n", "Employee Name", "Monthly salary",
+							"Monthly Federal tax", "Monthly net pay");
+					String filePayStubContents = String.format("%24s %20.2f %20.2f %20.2f \n", allEmployees[i].getName(), monthlySalary,
+							monthlyTax, netMonthPay);
+					fw.write(fileHeader);
+					fw.write(filePayStubContents);
+					fw.close();
+				}
+				catch(IOException ioe) {
+					System.err.println("IOException: " + ioe.getMessage());
+				}
 			
 			}
 			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} 
+		catch(IOException ioe) {
+			System.err.println("IOException: " + ioe.getMessage());
 		}
 	}
 	
 }
+
 
 
 
