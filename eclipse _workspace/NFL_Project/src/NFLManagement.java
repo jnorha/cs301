@@ -30,8 +30,9 @@ public class NFLManagement {
 
 		//Print out the menu, and ask the user to make the choice
 		System.out.println(" ========== Personnel Management Menu ==============");
-		System.out.println(" 1 - Managing the contract");
-		System.out.println(" 2 - Managing the paystub");
+		System.out.println(" 1 - Manage Contracts");
+		System.out.println(" 2 - Manage Paystubs");
+		System.out.println(" 3 - Generate Team Tax Files");
 		System.out.println(" Others - exit");
 		System.out.println(" Your choice:");
 		Scanner input = new Scanner(System.in);
@@ -47,6 +48,10 @@ public class NFLManagement {
 				
 			case 2:
 				managePayStub(fileName);
+				break;
+				
+			case 3:
+				createTaxFile(fileName);
 				break;
 				
 			default:
@@ -379,7 +384,6 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		System.out.println(" ========== Personnel Contract Management Menu ==============");
 		System.out.println(" 1 - Print Contract for Specific Employee");
 		System.out.println(" 2 - Print Total Salary of players on a given team");
-		System.out.println(" 3 - Manage Contract Taxes");
 		System.out.println(" Others - exit");
 		System.out.println(" Your choice:");
 		
@@ -415,14 +419,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			int targetYear = inputTeamNameAndYear.nextInt();
 			printTeamSalary(fileName, teamName, targetYear);
 			break;
-			
-		case 3:
-			//manageContract(fileName);
-			System.out.println("Team name?");
-			Scanner inputTeamName = new Scanner(System.in);
-			String teamNameChoice = inputTeamName.nextLine();
-			teamPayStubs(fileName, teamNameChoice);
-			break;
+
 		default:
 			System.out.println("Invalid choice, exiting ...");
 			return;
@@ -544,6 +541,106 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		}
 		
 		
+//--// METHODS FOR GENERATING TAX FILE _______--------------------------------------___________________________
+		/**
+		 * Method: Create files for team tax summaries
+		 * @param string fileName
+		 * @return none - generates txt files containing team player names and their annual tax
+		 */
+		
+		public static void createTaxFile(String fileName) {
+			// borrowing our array creator from before
+
+			List<String[]> listArrayStrings = new ArrayList<>();
+			
+			try {
+				File inFile = new File(fileName);
+
+				FileReader  fileReader = new FileReader(inFile); 
+				BufferedReader bufferReader = new BufferedReader(fileReader);
+
+				String inputStr = bufferReader.readLine();
+				inputStr = bufferReader.readLine();
+
+				while(inputStr != null ) {
+					//Create an object for each record read in
+					String lineStrings [] = inputStr.split(",");
+					listArrayStrings.add(lineStrings); 
+					inputStr = bufferReader.readLine();
+				}
+
+				// test the list of arrays
+				//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+				
+				// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+				int fileLength = listArrayStrings.size();
+				NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+				
+				for(int i=0;i<fileLength;i++) {
+					
+					String[] lineStrings = listArrayStrings.get(i);
+					String playerName = lineStrings[0];
+					String teamName = lineStrings[1];
+					String category = lineStrings[2];
+					String title = lineStrings[3];
+					int salary = Integer.parseInt(lineStrings[4]);
+					int expirationYear = Integer.parseInt(lineStrings[5]);
+					
+					allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+				}
+
+				for(int i=0;i<fileLength;i++) {
+					String theTeamName = allEmployees[i].getTeam();
+					String newFileName ="C:\\temp\\" +  theTeamName+"Tax.txt";
+					FileWriter fw = new FileWriter(newFileName,true);
+					if(allEmployees[i].getEndYear()>2026) {
+						//Test it out before writing files like a madman
+						//System.out.println(newFileName);
+						try {
+							double playerSalary = allEmployees[i].getSalary();
+							double fedTax = 0.0;
+							if(playerSalary<=11925) {
+								fedTax = playerSalary * 0.10;
+							}
+							else if(11926<playerSalary && playerSalary<=48475) {
+								fedTax = playerSalary * 0.12;
+							}
+							else if(48475<playerSalary && playerSalary<=103350) {
+								fedTax = playerSalary * 0.22;
+							}
+							else if(103350<playerSalary && playerSalary<=197300) {
+								fedTax = playerSalary * 0.24;
+							}
+							else if(197300<playerSalary && playerSalary<=250525) {
+								fedTax = playerSalary * 0.32;
+							}
+							else if(250525<playerSalary && playerSalary<=626350) {
+								fedTax = playerSalary * 0.35;
+							}
+							else {
+								fedTax = playerSalary * 0.37;
+							}
+							String fileTaxContents = String.format("%24s %20.2f \n", allEmployees[i].getName(), fedTax);
+		
+							fw.write(fileTaxContents);
+							fw.close();
+						}
+						catch(IOException ioe) {
+							System.err.println("IOException: " + ioe.getMessage());
+						}
+					}
+					
+					else {
+						//dont want to do anything for players whos contract ends before 2026
+						;
+					}
+					System.out.println("Successfully generated team tax file");
+				}
+			} 
+			catch(IOException ioe) {
+				System.err.println("IOException: " + ioe.getMessage());
+			}
+		}
 		
 	
 // this one is end of main method
