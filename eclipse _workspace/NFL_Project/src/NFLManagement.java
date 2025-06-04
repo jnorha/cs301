@@ -33,11 +33,10 @@ public class NFLManagement {
 		System.out.println(" 1 - Manage Contracts");
 		System.out.println(" 2 - Manage Paystubs");
 		System.out.println(" 3 - Generate Team Tax Files");
-		System.out.println(" Others - exit");
+		System.out.println(" Any other input - exit");
 		System.out.println(" Your choice:");
 		Scanner input = new Scanner(System.in);
 		int choice = input.nextInt();
-		
 		//Do the detailed management operations based on the choice
 		switch(choice) {
 			case 1:
@@ -55,27 +54,16 @@ public class NFLManagement {
 				break;
 				
 			default:
-				System.out.println("Invalid choice, exiting ...");
+				System.out.println("Alternate input, exiting ...");
 				return;
 						
 		}
 		
 	}
 	/**
-	 * Method: Managing the pay stub for the specific employee
+	 * Method: Managing the pay stub options with designated menu
 	 * @param employee personnel file name
 	 * @return none
-	 * 
-* Add a menu to allow one to make choices on operations about pay stub and complete the related functionality and implement each functionality as a method: 
-
-a. Print the paystub for a specific employee based on their name.
-
-b. Print the paystubs for the employee with the highest salary and lowest salary.
-
-c. Print the paystubs for all employees for a given team on screen. B
-ut also print each paystub into a file named as TeamName/Stub+firstName+LastName.txt (i.e. each team will have a separate folder). 
-An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
-	 * 
 	 */
 	public static void managePayStub(String fileName) {
 		
@@ -84,7 +72,8 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		System.out.println(" 1 - Print Paystub for Specific Employee");
 		System.out.println(" 2 - Print Paystubs for the Highest and Lowest Salary Employees");
 		System.out.println(" 3 - Print Paystubs a Specific Team on screen and also generate text files for ALL employee contracts, nested within team directory");
-		System.out.println(" Others - exit");
+		System.out.println(" 4 - Return to main menu");
+		System.out.println(" Any other input - exit the program");
 		System.out.println(" Your choice:");
 		
 		
@@ -92,7 +81,6 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		// new scanner
 		Scanner input2 = new Scanner(System.in);
 		int payStubChoice = input2.nextInt();
-		
 		switch(payStubChoice) {
 		case 1:
 			//manageContract(fileName);
@@ -104,7 +92,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 				targetPrintPayStub(employeeNameChoice, fileName);
 			}
 			else {
-				System.out.println("Something Went Wrong");
+				System.out.println("Please make sure you type first and last name of employee with a space in between.");
 			}
 		
 			
@@ -119,10 +107,21 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			System.out.println("Team name?");
 			Scanner inputTeamName = new Scanner(System.in);
 			String teamNameChoice = inputTeamName.nextLine();
-			teamPayStubs(fileName, teamNameChoice);
+			if (teamNameChoice != null) {
+				teamPayStubs(fileName, teamNameChoice);
+			}
+			else {
+				System.out.println("Please make sure you type the name of the team as it exists in the contract.");
+			}
+			
+			break;
+			
+		case 4:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
 			break;
 		default:
-			System.out.println("Invalid choice, exiting ...");
+			System.out.println("Alternative input, exiting ...");
 			return;
 					
 		}
@@ -170,8 +169,30 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("Something went wrong either identifying your employee name or finding the personnel file. Please make sure the file path is correct.");
 			e.printStackTrace();
 		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
+		}
+		
 	}
 	
 	/**
@@ -236,7 +257,28 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
 			e.printStackTrace();
+		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
 		}
 		
 		
@@ -358,6 +400,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 					fw.close();
 				}
 				catch(IOException ioe) {
+					System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
 					System.err.println("IOException: " + ioe.getMessage());
 				}
 			
@@ -366,6 +409,26 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		} 
 		catch(IOException ioe) {
 			System.err.println("IOException: " + ioe.getMessage());
+		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
 		}
 	}
 
@@ -378,12 +441,13 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 	 * @param string fileName
 	 * @return none - presents all of the next options for managing contracts
 	 */
-		public static void manageContract(String fileName) {
+	public static void manageContract(String fileName) {
 		
 		// add a new men
 		System.out.println(" ========== Personnel Contract Management Menu ==============");
 		System.out.println(" 1 - Print Contract for Specific Employee");
 		System.out.println(" 2 - Print Total Salary of players on a given team");
+		System.out.println(" 3 - Return to main menu");
 		System.out.println(" Others - exit");
 		System.out.println(" Your choice:");
 		
@@ -396,7 +460,7 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		switch(contractChoice) {
 		case 1:
 			//manageContract(fileName);
-			System.out.println("Employee name?");
+			System.out.println("Employee name? If not matches are found, presents options for next steps.");
 			Scanner inputEmployeeName = new Scanner(System.in);
 			String employeeNameChoice = inputEmployeeName.nextLine();
 			//employeeNameChoice.printPayStub();
@@ -419,6 +483,12 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 			int targetYear = inputTeamNameAndYear.nextInt();
 			printTeamSalary(fileName, teamName, targetYear);
 			break;
+			
+		case 3:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
 
 		default:
 			System.out.println("Invalid choice, exiting ...");
@@ -436,40 +506,61 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 	 * NOTE: I did this one by copying the other so thats why it doesnt use object array, before realizing I would need a list/array/sorting function for other questions. Could revisit and try to re write but I think it works.
 	 */
 		
-		public static void targetPrintContract(String givenEmployeeName, String fileName) {
-			try {
-				File inFile = new File(fileName);
+	public static void targetPrintContract(String givenEmployeeName, String fileName) {
+		try {
+			File inFile = new File(fileName);
 
-				FileReader  fileReader = new FileReader(inFile);
-				BufferedReader bufferReader = new BufferedReader(fileReader);
+			FileReader  fileReader = new FileReader(inFile);
+			BufferedReader bufferReader = new BufferedReader(fileReader);
 
-				String inputStr = bufferReader.readLine();
-				inputStr = bufferReader.readLine();
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
 
-				while(inputStr != null ) {
-					//Create an object for each record read in
-					String lineStrings [] = inputStr.split(",");
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+			
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
 				
-					String playerName = lineStrings[0];
-					String teamName = lineStrings[1];
-					String category = lineStrings[2];
-					String title = lineStrings[3];
-					int salary = Integer.parseInt(lineStrings[4]);
-					int expirationYear = Integer.parseInt(lineStrings[5]);
-					
-					NFLEmployee employee = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
-					if (employee.getName().equals(givenEmployeeName)){
-						//Call the old print paystub method to print this persons stuff
-						employee.printContract();
-					}
-					
-					inputStr = bufferReader.readLine();
+				NFLEmployee employee = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+				if (employee.getName().equals(givenEmployeeName)){
+					//Call the old print paystub method to print this persons stuff
+					employee.printContract();
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
+				inputStr = bufferReader.readLine();
 			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+			e.printStackTrace();
 		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
+		}
+	}
 	
 		/**
 		 * Method: Print the joined salary for a given team
@@ -477,170 +568,218 @@ An example of the file name is StubDevonteWyatt.txt inside the Packers folder.
 		 * @return none - prints one total value for the whole teams salary
 		 */
 		
-		public static void printTeamSalary(String fileName, String targetTeamName, int targetYear) {
-			// borrowing our array creator from before
-			//NOTE **This should be its own method, and if I could figure out how to return an object array from a method I would make it one
+	public static void printTeamSalary(String fileName, String targetTeamName, int targetYear) {
+		// borrowing our array creator from before
+		//NOTE **This should be its own method, and if I could figure out how to return an object array from a method I would make it one
 
-			List<String[]> listArrayStrings = new ArrayList<>();
-			
-			try {
-				File inFile = new File(fileName);
+		List<String[]> listArrayStrings = new ArrayList<>();
+		
+		try {
+			File inFile = new File(fileName);
 
-				FileReader  fileReader = new FileReader(inFile); 
-				BufferedReader bufferReader = new BufferedReader(fileReader);
+			FileReader  fileReader = new FileReader(inFile); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
 
-				String inputStr = bufferReader.readLine();
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
+
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				listArrayStrings.add(lineStrings); 
 				inputStr = bufferReader.readLine();
-
-				while(inputStr != null ) {
-					//Create an object for each record read in
-					String lineStrings [] = inputStr.split(",");
-					listArrayStrings.add(lineStrings); 
-					inputStr = bufferReader.readLine();
-				}
-
-				// test the list of arrays
-				//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
-				
-				// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
-				int fileLength = listArrayStrings.size();
-				NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
-
-				for(int i=0;i<fileLength;i++) {
-					
-					String[] lineStrings = listArrayStrings.get(i);
-					String playerName = lineStrings[0];
-					String teamName = lineStrings[1];
-					String category = lineStrings[2];
-					String title = lineStrings[3];
-					int salary = Integer.parseInt(lineStrings[4]);
-					int expirationYear = Integer.parseInt(lineStrings[5]);
-					
-					allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
-				}
-				
-				//Grab the employees for the given team with contracts that expire AFTER the given year and start adding them up
-				int teamTotal = 0;
-				for(int i=0;i<fileLength;i++) {
-					if(allEmployees[i].getTeam().equals(targetTeamName) && allEmployees[i].getEndYear() > targetYear) {
-						teamTotal = teamTotal+allEmployees[i].getSalary();
-					}
-					else {
-						;
-					}
-				//for loop end
-				}
-
-				//now to print out the team total
-				System.out.println("The total Team Salary for contracts extending beyond "+targetYear+" is "+teamTotal);
-				
-			} 
-			catch(IOException ioe) {
-				System.err.println("IOException: " + ioe.getMessage());
 			}
+
+			// test the list of arrays
+			//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+			
+			// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+			int fileLength = listArrayStrings.size();
+			NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+
+			for(int i=0;i<fileLength;i++) {
+				
+				String[] lineStrings = listArrayStrings.get(i);
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
+				
+				allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+			}
+			
+			//Grab the employees for the given team with contracts that expire AFTER the given year and start adding them up
+			int teamTotal = 0;
+			for(int i=0;i<fileLength;i++) {
+				if(allEmployees[i].getTeam().equals(targetTeamName) && allEmployees[i].getEndYear() > targetYear) {
+					teamTotal = teamTotal+allEmployees[i].getSalary();
+				}
+				else {
+					;
+				}
+			//for loop end
+			}
+
+			if (teamTotal>0) {
+				System.out.println("The total Team Salary for contracts extending beyond "+targetYear+" is $"+teamTotal);
+			}
+			else {
+				System.out.println("There are no employee records for that team. Please make sure your target team name lines up with what is in the contract.");
+			}
+			
+		} 
+		catch(IOException ioe) {
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+			System.err.println("IOException: " + ioe.getMessage());
 		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
 		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
 		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
+		}
+	}
+	
+	
 //--// METHODS FOR GENERATING TAX FILE _______--------------------------------------___________________________
-		/**
-		 * Method: Create files for team tax summaries
-		 * @param string fileName
-		 * @return none - generates txt files containing team player names and their annual tax
-		 */
+	/**
+	 * Method: Create files for team tax summaries
+	 * @param string fileName
+	 * @return none - generates txt files containing team player names and their annual tax
+	 */
+	
+	public static void createTaxFile(String fileName) {
+		// borrowing our array creator from before
+
+		List<String[]> listArrayStrings = new ArrayList<>();
 		
-		public static void createTaxFile(String fileName) {
-			// borrowing our array creator from before
+		try {
+			File inFile = new File(fileName);
 
-			List<String[]> listArrayStrings = new ArrayList<>();
-			
-			try {
-				File inFile = new File(fileName);
+			FileReader  fileReader = new FileReader(inFile); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
 
-				FileReader  fileReader = new FileReader(inFile); 
-				BufferedReader bufferReader = new BufferedReader(fileReader);
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
 
-				String inputStr = bufferReader.readLine();
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				listArrayStrings.add(lineStrings); 
 				inputStr = bufferReader.readLine();
-
-				while(inputStr != null ) {
-					//Create an object for each record read in
-					String lineStrings [] = inputStr.split(",");
-					listArrayStrings.add(lineStrings); 
-					inputStr = bufferReader.readLine();
-				}
-
-				// test the list of arrays
-				//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
-				
-				// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
-				int fileLength = listArrayStrings.size();
-				NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
-				
-				for(int i=0;i<fileLength;i++) {
-					
-					String[] lineStrings = listArrayStrings.get(i);
-					String playerName = lineStrings[0];
-					String teamName = lineStrings[1];
-					String category = lineStrings[2];
-					String title = lineStrings[3];
-					int salary = Integer.parseInt(lineStrings[4]);
-					int expirationYear = Integer.parseInt(lineStrings[5]);
-					
-					allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
-				}
-
-				for(int i=0;i<fileLength;i++) {
-					String theTeamName = allEmployees[i].getTeam();
-					String newFileName ="C:\\temp\\" +  theTeamName+"Tax.txt";
-					FileWriter fw = new FileWriter(newFileName,true);
-					if(allEmployees[i].getEndYear()>2026) {
-						//Test it out before writing files like a madman
-						//System.out.println(newFileName);
-						try {
-							double playerSalary = allEmployees[i].getSalary();
-							double fedTax = 0.0;
-							if(playerSalary<=11925) {
-								fedTax = playerSalary * 0.10;
-							}
-							else if(11926<playerSalary && playerSalary<=48475) {
-								fedTax = playerSalary * 0.12;
-							}
-							else if(48475<playerSalary && playerSalary<=103350) {
-								fedTax = playerSalary * 0.22;
-							}
-							else if(103350<playerSalary && playerSalary<=197300) {
-								fedTax = playerSalary * 0.24;
-							}
-							else if(197300<playerSalary && playerSalary<=250525) {
-								fedTax = playerSalary * 0.32;
-							}
-							else if(250525<playerSalary && playerSalary<=626350) {
-								fedTax = playerSalary * 0.35;
-							}
-							else {
-								fedTax = playerSalary * 0.37;
-							}
-							String fileTaxContents = String.format("%24s %20.2f \n", allEmployees[i].getName(), fedTax);
-		
-							fw.write(fileTaxContents);
-							fw.close();
-						}
-						catch(IOException ioe) {
-							System.err.println("IOException: " + ioe.getMessage());
-						}
-					}
-					
-					else {
-						//dont want to do anything for players whos contract ends before 2026
-						;
-					}
-					System.out.println("Successfully generated team tax file");
-				}
-			} 
-			catch(IOException ioe) {
-				System.err.println("IOException: " + ioe.getMessage());
 			}
+
+			// test the list of arrays
+			//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+			
+			// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+			int fileLength = listArrayStrings.size();
+			NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+			
+			for(int i=0;i<fileLength;i++) {
+				
+				String[] lineStrings = listArrayStrings.get(i);
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
+				
+				allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+			}
+
+			for(int i=0;i<fileLength;i++) {
+				String theTeamName = allEmployees[i].getTeam();
+				String newFileName ="C:\\temp\\" +  theTeamName+"Tax.txt";
+				FileWriter fw = new FileWriter(newFileName,true);
+				if(allEmployees[i].getEndYear()>2026) {
+					//Test it out before writing files like a madman
+					//System.out.println(newFileName);
+					try {
+						double playerSalary = allEmployees[i].getSalary();
+						double fedTax = 0.0;
+						if(playerSalary<=11925) {
+							fedTax = playerSalary * 0.10;
+						}
+						else if(11926<playerSalary && playerSalary<=48475) {
+							fedTax = playerSalary * 0.12;
+						}
+						else if(48475<playerSalary && playerSalary<=103350) {
+							fedTax = playerSalary * 0.22;
+						}
+						else if(103350<playerSalary && playerSalary<=197300) {
+							fedTax = playerSalary * 0.24;
+						}
+						else if(197300<playerSalary && playerSalary<=250525) {
+							fedTax = playerSalary * 0.32;
+						}
+						else if(250525<playerSalary && playerSalary<=626350) {
+							fedTax = playerSalary * 0.35;
+						}
+						else {
+							fedTax = playerSalary * 0.37;
+						}
+						String fileTaxContents = String.format("%24s %20.2f \n", allEmployees[i].getName(), fedTax);
+	
+						fw.write(fileTaxContents);
+						fw.close();
+					}
+					catch(IOException ioe) {
+						System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+						System.err.println("IOException: " + ioe.getMessage());
+					}
+				}
+				
+				else {
+					//dont want to do anything for players whos contract ends before 2026
+					;
+				}
+				
+			}
+			System.out.println("Successfully generated team tax file");
+		} 
+		catch(IOException ioe) {
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+			System.err.println("IOException: " + ioe.getMessage());
 		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
+		}
+	}
 		
 	
 // this one is end of main method
