@@ -3,7 +3,7 @@
  * Program: NFLManagement.java for 5/29 class (File processing version)
  * 		Read in the personnel file and process the employee information in a batch
  * Author: Josh Daniels
- * Date:	6/3/2025
+ * Date:	6/9/2025
  * Version:	1.3
  */
 
@@ -1147,7 +1147,8 @@ public class NFLManagement {
 					
 		}
 	}
-	
+
+//--// GLOBAL METHODS ___________________------------------------------__________________________
 	/**
 	 * Method: ingests the file and returns an object arraylist
 	 * @params input filename
