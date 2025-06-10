@@ -481,9 +481,11 @@ public class NFLManagement {
 			System.out.println("Team name?");
 			Scanner inputTeamNameAndYear = new Scanner(System.in);
 			String teamName = inputTeamNameAndYear.nextLine();
-			System.out.println("Target season Salary Cap cutoff?");
+			System.out.println("Target season year Salary Cap consideration?");
 			int targetYear = inputTeamNameAndYear.nextInt();
-			printTeamSalary(fileName, teamName, targetYear);
+			System.out.println("Target season Salary Cap amount?");
+			int targetCap = inputTeamNameAndYear.nextInt();
+			printTeamSalary(fileName, teamName, targetYear, targetCap);
 			break;
 			
 		case 3:
@@ -783,11 +785,12 @@ public class NFLManagement {
 		}
 	}
 	
+	// old version
 		/**
 		 * Method: Print the joined salary for a given team
 		 * @param string fileName, string teamName
 		 * @return none - prints one total value for the whole teams salary
-		 */
+		 
 		
 	public static void printTeamSalary(String fileName, String targetTeamName, int targetYear) {
 		// borrowing our array creator from before
@@ -845,6 +848,149 @@ public class NFLManagement {
 
 			if (teamTotal>0) {
 				System.out.println("The total Team Salary for contracts extending beyond "+targetYear+" is $"+teamTotal);
+			}
+			else {
+				System.out.println("There are no employee records for that team. Please make sure your target team name lines up with what is in the contract.");
+			}
+			
+		} 
+		catch(IOException ioe) {
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+			System.err.println("IOException: " + ioe.getMessage());
+		}
+		System.out.println("Choose what to do next:");
+		System.out.println(" 1 - Return to Main Menu");
+		System.out.println(" Any Other Key - Exit the Program");
+		System.out.println(" Your choice:");
+		
+		// new scanner
+		Scanner input2 = new Scanner(System.in);
+		int navChoice = input2.nextInt();
+		
+		switch(navChoice) {
+		case 1:
+			String personnelFileName = "NFLPersonnel.csv";
+			personelManagement(personnelFileName);
+			break;
+			
+		default:
+			System.out.println("Alternative input, exiting ...");
+			return;
+					
+		}
+	}
+	*/
+	
+		/**
+		 * Method: Salary Cap management of team contracts. Records input of max salary from user keyboard input and compares the team summary.
+		 * @param string fileName, string teamName, int salaryCap
+		 * @return revises the roster,and contract file based which person the user decides to remove from the lsit of team members.
+		 */
+		
+	public static void printTeamSalary(String fileName, String targetTeamName, int targetYear, int targetCap) {
+		// borrowing our array creator from before
+		//NOTE **This should be its own method, and if I could figure out how to return an object array from a method I would make it one
+	
+		List<String[]> listArrayStrings = new ArrayList<>();
+		
+		try {
+			File inFile = new File(fileName);
+	
+			FileReader  fileReader = new FileReader(inFile); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
+	
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
+	
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				listArrayStrings.add(lineStrings); 
+				inputStr = bufferReader.readLine();
+			}
+	
+			// test the list of arrays
+			//System.out.println("Length of file: " + listArrayStrings.size() + " And the First entry is: " + listArrayStrings.get(0)[1]);
+			
+			// now we should make an object array of employees from the list now that we actually KNOW HOW LONG THE FILE IS (java should really let you create arbitrary/flexible array sizes
+			int fileLength = listArrayStrings.size();
+			NFLEmployee allEmployees[] = new NFLEmployee[fileLength];
+	
+			for(int i=0;i<fileLength;i++) {
+				
+				String[] lineStrings = listArrayStrings.get(i);
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
+				
+				allEmployees[i] = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+			}
+			
+			//Grab the employees for the given team with contracts that expire AFTER the given year and start adding them up
+			int teamTotal = 0;
+			for(int i=0;i<fileLength;i++) {
+				if(allEmployees[i].getTeam().equals(targetTeamName) && allEmployees[i].getEndYear() > targetYear) {
+					teamTotal = teamTotal+allEmployees[i].getSalary();
+				}
+				else {
+					;
+				}
+			//for loop end - now we have the team total salary for the target year and target team
+			}
+			ArrayList<NFLEmployee> updatedList = new ArrayList<>();
+			
+			if (teamTotal>targetCap) {
+				System.out.println("The current team total salary of $"+teamTotal+" is above the provided salary cap of $"+targetCap+"for"+targetYear);
+				System.out.println("The team roster will need to be edited to be below the total cap");
+				System.out.println("Please select a player from the below list to remove from the roster:");
+				for(int i=0;i<fileLength;i++) {
+					if(allEmployees[i].getTeam().equals(targetTeamName) && allEmployees[i].getEndYear() >= targetYear) {
+						System.out.println("Name: "+allEmployees[i].getName()+" and their Salary: $"+allEmployees[i].getSalary());
+					}
+					else {
+						//do nothing
+						;
+					}
+				
+				}
+				System.out.println("Player to remove: ");
+				Scanner input2 = new Scanner(System.in);
+				String removePlayer = input2.nextLine();
+			
+				
+				//for now, removes any players from earlier than the target year too
+				for(int i=0;i<fileLength;i++) {
+					if(allEmployees[i].getName().equals(removePlayer)) {
+						//do nothing for target employee
+						;
+					}
+					else {
+						updatedList.add(allEmployees[i]);
+					}
+				
+				}
+				
+				//create the new file
+				System.out.println("Writing updated employee file...");
+				File fileNameNew = new File(fileName);
+				FileOutputStream fileStream = new FileOutputStream(fileNameNew);
+				PrintWriter printWriter = new PrintWriter(fileStream);
+				printWriter.println("Name,Team,Job Category,Title,Salary,Contract Expires");
+				int updatedLength = updatedList.size();
+				for (int i=0;i<updatedLength;i++) {
+					printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
+				}
+				printWriter.close();
+				
+				//end of contract salary cap summary conditional
+			}
+			else if (teamTotal<=targetCap){
+				System.out.println("The total Team Salary for contracts extending beyond "+targetYear+" is $"+teamTotal);
+				int salaryDifference = targetCap-teamTotal;
+				System.out.println("The difference between the total and the salary cap is: $"+ salaryDifference);
 			}
 			else {
 				System.out.println("There are no employee records for that team. Please make sure your target team name lines up with what is in the contract.");
@@ -1001,8 +1147,48 @@ public class NFLManagement {
 					
 		}
 	}
-		
 	
+	/**
+	 * Method: ingests the file and returns an object arraylist
+	 * @params input filename
+	 * @return arrayList of employee objects
+	 */
+		
+	public static ArrayList readFileToArray(String fileName) {
+	
+		ArrayList<NFLEmployee> fileArray = new ArrayList<>();
+		
+		try {
+			File inFile = new File(fileName);
+	
+			FileReader  fileReader = new FileReader(inFile); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
+	
+			String inputStr = bufferReader.readLine();
+			inputStr = bufferReader.readLine();
+	
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				String playerName = lineStrings[0];
+				String teamName = lineStrings[1];
+				String category = lineStrings[2];
+				String title = lineStrings[3];
+				int salary = Integer.parseInt(lineStrings[4]);
+				int expirationYear = Integer.parseInt(lineStrings[5]);
+				
+				NFLEmployee employeeForList = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+				fileArray.add(employeeForList); 
+				inputStr = bufferReader.readLine();
+			}
+			
+			return fileArray;
+			
+		}
+		catch (IOException ioe){
+			System.out.println("something went wrong with reading the file");
+			return fileArray;
+		}
+	}
 // this one is end of main method
 }
-
