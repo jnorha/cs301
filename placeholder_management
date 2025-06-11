@@ -19,6 +19,13 @@ public class NFLManagement {
 		String personnelFileName = "NFLPersonnel.csv";
 		ArrayList<NFLTeam> teamFileArray = teamReadIn(teamFileName);
 		ArrayList<NFLEmployee> employeeArray = readEmployeeToArray(personnelFileName, teamFileArray);
+		//some print checks
+		/*
+		for(int i=0;i<teamFileArray.size();i++) {
+			System.out.println(teamFileArray.get(i).getTeamName());
+		}
+		*/
+		
 		personelManagement(personnelFileName, teamFileArray, employeeArray);
 	}
 	
@@ -37,7 +44,8 @@ public class NFLManagement {
 		System.out.println(" ========== Personnel Management Menu ==============");
 		System.out.println(" 1 - Manage Contracts");
 		System.out.println(" 2 - Manage Paystubs");
-		System.out.println(" 3 - Generate Team Tax Files");
+		System.out.println(" 3 - Manage Player Teams");
+		System.out.println(" 4 - Generate Team Tax Files");
 		System.out.println(" Any other input - exit");
 		System.out.println(" Your choice:");
 		Scanner input = new Scanner(System.in);
@@ -55,9 +63,22 @@ public class NFLManagement {
 				break;
 				
 			case 3:
-				createTaxFile(fileName, teamArray);
+				System.out.println("Employee name?");
+				Scanner inputEmployeeName = new Scanner(System.in);
+				String employeeNameChoice = inputEmployeeName.nextLine();
+				//employeeNameChoice.printPayStub();
+				if (employeeNameChoice != null) {
+					employeeArray = transferProcessing(fileName, employeeNameChoice, employeeArray, teamArray);
+					personelManagement(fileName, teamArray, employeeArray);
+				}
+				else {
+					System.out.println("Please make sure you type first and last name of employee with a space in between.");
+				}
 				break;
 				
+			case 4:
+				createTaxFile(fileName, teamArray, employeeArray);
+				break;
 			default:
 				System.out.println("Alternate input, exiting ...");
 				return;
@@ -236,10 +257,10 @@ public class NFLManagement {
 		int fileLength = employeeArray.size();
 		//Actually, i think java will just build the folder's and nest accordingly.
 		for(int i=0;i<fileLength;i++) {
-			String theTeamName = employeeArray.get(i).getTeam().getTeam();
+			String theTeamName = employeeArray.get(i).getTeam().getTeamName();
 			String thePlayerName[] = employeeArray.get(i).getName().split(" ");
 			String thePlayerFullName = thePlayerName[0] + thePlayerName[1];
-			if(employeeArray.get(i).getTeam().getTeam().contains(targetTeamName)) {
+			if(employeeArray.get(i).getTeam().getTeamName().contains(targetTeamName)) {
 				employeeArray.get(i).printPayStub();
 			}
 			else {
@@ -366,7 +387,7 @@ public class NFLManagement {
 			int targetYear = inputTeamNameAndYear.nextInt();
 			System.out.println("Target season Salary Cap amount?");
 			int targetCap = inputTeamNameAndYear.nextInt();
-			printTeamSalary(fileName, teamName, targetYear, targetCap);
+			printTeamSalary(fileName, teamName, targetYear, targetCap, teamArray, employeeArray);
 			break;
 			
 		case 3:
@@ -376,7 +397,7 @@ public class NFLManagement {
 			String employeeChoice = inEmployeeName.nextLine();
 			//employeeNameChoice.printPayStub();
 			if (employeeChoice != null) {
-				targetEditContract(employeeChoice, fileName);
+				targetEditContract(employeeChoice, fileName, teamArray, employeeArray);
 			}
 			else {
 				System.out.println("Something Went Wrong");
@@ -384,7 +405,7 @@ public class NFLManagement {
 			break;
 			
 		case 4:
-			remove2024(fileName);
+			remove2024(fileName, teamArray, employeeArray);
 			break;
 		
 		case 5:
@@ -411,7 +432,7 @@ public class NFLManagement {
 	public static void targetPrintContract(String givenEmployeeName, String fileName, ArrayList<NFLTeam> teamArray, ArrayList<NFLEmployee> employeeArray) {
 		int fileLength = employeeArray.size();
 		for(int i=0;i<fileLength;i++) {
-			if (employeeArray.get(i).equals(givenEmployeeName)){
+			if (employeeArray.get(i).getName().equals(givenEmployeeName)){
 				//Call the old print paystub method to print this persons stuff
 				employeeArray.get(i).printContract();
 			}
@@ -449,6 +470,7 @@ public class NFLManagement {
 	public static void targetEditContract(String givenEmployeeName, String fileName, ArrayList<NFLTeam> teamArray, ArrayList<NFLEmployee> employeeArray) {	
 			try {
 				int fileLength = employeeArray.size();
+				ArrayList<NFLEmployee> updatedList = new ArrayList<>();
 				
 				for(int i=0;i<fileLength;i++) {
 					if(employeeArray.get(i).getName().equals(givenEmployeeName)) {
@@ -467,12 +489,16 @@ public class NFLManagement {
 						System.out.println("Employee's new End Year?");
 						int expirationYear = editEmp.nextInt();
 						int teamLength = teamArray.size();
-						for(int i=0;i<teamLength;i++) {
-							employeeArray.get(i) = new NFLEmployee(playerName, teamName, category, title, salary, expirationYear);
+						for(int t=0;t<teamLength;t++) {
+							if(teamArray.get(t).getTeamName().contains(teamName)) {
+								NFLEmployee employee = new NFLEmployee(playerName, teamArray.get(t), category, title, salary, expirationYear);
+								updatedList.add(employee);
+							}
 						}
 					}
 					else {
-						// just pass all other employees
+						// just pass all other employees to updated list
+						updatedList.add(employeeArray.get(i));
 					}
 				}
 				
@@ -483,7 +509,7 @@ public class NFLManagement {
 				String inStr;
 				printWriter.println("Name,Team,Job Category,Title,Salary,Contract Expires");
 				for (int i=0;i<fileLength;i++) {
-					printWriter.println(allEmployees[i].getName()+","+allEmployees[i].getTeam().getTeam()+","+allEmployees[i].getJobCategory()+","+allEmployees[i].getTitle()+","+allEmployees[i].getSalary()+","+allEmployees[i].getEndYear());
+					printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeamName()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
 				}
 				printWriter.close();
 
@@ -542,7 +568,7 @@ public class NFLManagement {
 				printWriter.println("Name,Team,Job Category,Title,Salary,Contract Expires");
 				int updatedLength = updatedList.size();
 				for (int i=0;i<updatedLength;i++) {
-					printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeam()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
+					printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeamName()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
 				}
 				printWriter.close();
 
@@ -584,7 +610,7 @@ public class NFLManagement {
 		int teamTotal = 0;
 		int fileLength = employeeArray.size();
 		for(int i=0;i<fileLength;i++) {
-			if(employeeArray.get(i).getTeam().getTeam().equals(targetTeamName) && employeeArray.get(i).getEndYear() > targetYear) {
+			if(employeeArray.get(i).getTeam().getTeamName().equals(targetTeamName) && employeeArray.get(i).getEndYear() > targetYear) {
 				teamTotal = teamTotal+employeeArray.get(i).getSalary();
 			}
 			else {
@@ -599,7 +625,7 @@ public class NFLManagement {
 			System.out.println("The team roster will need to be edited to be below the total cap");
 			System.out.println("Please select a player from the below list to remove from the roster:");
 			for(int i=0;i<fileLength;i++) {
-				if(employeeArray.get(i).getTeam().getTeam().equals(targetTeamName) && employeeArray.get(i).getEndYear() >= targetYear) {
+				if(employeeArray.get(i).getTeam().getTeamName().equals(targetTeamName) && employeeArray.get(i).getEndYear() >= targetYear) {
 					System.out.println("Name: "+employeeArray.get(i).getName()+" and their Salary: $"+employeeArray.get(i).getSalary());
 				}
 				else {
@@ -633,7 +659,7 @@ public class NFLManagement {
 			printWriter.println("Name,Team,Job Category,Title,Salary,Contract Expires");
 			int updatedLength = updatedList.size();
 			for (int i=0;i<updatedLength;i++) {
-				printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeam()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
+				printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeamName()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
 			}
 			printWriter.close();
 			
@@ -686,12 +712,10 @@ public class NFLManagement {
 	public static void createTaxFile(String fileName, ArrayList<NFLTeam> teamArray, ArrayList<NFLEmployee> employeeArray) {
 		// borrowing our array creator from before
 
-		List<String[]> listArrayStrings = new ArrayList<>();
-		
 		try {
 			int fileLength = employeeArray.size();
 			for(int i=0;i<fileLength;i++) {
-				String theTeamName = employeeArray.get(i).getTeam().getTeam();
+				String theTeamName = employeeArray.get(i).getTeam().getTeamName();
 				String newFileName ="C:\\temp\\" +  theTeamName+"Tax.txt";
 				FileWriter fw = new FileWriter(newFileName,true);
 				if(employeeArray.get(i).getEndYear()>2026) {
@@ -797,7 +821,7 @@ public class NFLManagement {
 				int expirationYear = Integer.parseInt(lineStrings[5]);
 				int numTeams = teamArray.size();
 				for (int i=0;i<numTeams;i++) {
-					if(teamArray.get(i).getTeam().contains(teamName)) {
+					if(teamArray.get(i).getTeamName().equals(teamName)) {
 						NFLTeam playerTeam = teamArray.get(i);
 						NFLEmployee employeeForList = new NFLEmployee(playerName, playerTeam, category, title, salary, expirationYear);
 						fileArray.add(employeeForList);
@@ -845,6 +869,7 @@ public class NFLManagement {
 			while(inputStr != null ) {
 				//Create an object for each record read in
 				String lineStrings [] = inputStr.split(",");
+				//System.out.println(lineStrings[0]+" "+lineStrings[1]+" "+lineStrings[2]+" "+lineStrings[3]+" "+lineStrings[4]+" "+lineStrings[5]+" "+lineStrings[6]+" "+lineStrings[7]+" ");
 				String teamName = lineStrings[0];
 				String teamLocation = lineStrings[1];
 				String teamStadiumName = lineStrings[2];
@@ -855,6 +880,7 @@ public class NFLManagement {
 				String teamCoach = lineStrings[7];
 				
 				NFLTeam teamForList = new NFLTeam(teamName, teamLocation, teamStadiumName, teamStadiumCapacity, teamConference, teamDivision, teamStartingYear, teamCoach);
+				//System.out.println(teamForList.getTeamName());
 				teamFileArray.add(teamForList); 
 				inputStr = bufferReader.readLine();
 			}
@@ -866,6 +892,71 @@ public class NFLManagement {
 			System.out.println("something went wrong with reading the file");
 			return teamFileArray;
 		}
+		
 	}
+	/**
+	 * Method: transferProcessing
+	 * Function: finds an employee and updates their team information
+	 * @params String employeeName, String newTeamName, ArrayList employeeArrayList, ArrayList teamArrayList
+	 * @returns ArrayList updatedArray
+	 */
+	
+	public static ArrayList<NFLEmployee> transferProcessing(String fileName, String givenEmployeeName, ArrayList<NFLEmployee> employeeArray, ArrayList<NFLTeam> teamArray){
+		ArrayList<NFLEmployee> updatedList = new ArrayList<>();
+		try {
+			int fileLength = employeeArray.size();
+			
+			
+			for(int i=0;i<fileLength;i++) {
+				if(employeeArray.get(i).getName().equals(givenEmployeeName)) {
+					System.out.println("Editing Contract Information for " + employeeArray.get(i).getName());
+					Scanner editEmp = new Scanner(System.in);
+					System.out.println("Employee's new name?");
+					String playerName = editEmp.nextLine();
+					System.out.println("Employee's new Team?");
+					String teamName = editEmp.nextLine();
+					System.out.println("Employee's new Job Category?");
+					String category = editEmp.nextLine();
+					System.out.println("Employee's new Title?");
+					String title = editEmp.nextLine();
+					System.out.println("Employee's new Salary?");
+					int salary = editEmp.nextInt();
+					System.out.println("Employee's new End Year?");
+					int expirationYear = editEmp.nextInt();
+					int teamLength = teamArray.size();
+					for(int t=0;t<teamLength;t++) {
+						if(teamArray.get(t).getTeamName().contains(teamName)) {
+							NFLEmployee employee = new NFLEmployee(playerName, teamArray.get(t), category, title, salary, expirationYear);
+							updatedList.add(employee);
+						}
+					}
+				}
+				else {
+					// just pass all other employees to updated list
+					updatedList.add(employeeArray.get(i));
+				}
+			}
+			
+			System.out.println("Writing updated employee file...");
+			File fileNameNew = new File(fileName);
+			FileOutputStream fileStream = new FileOutputStream(fileNameNew);
+			PrintWriter printWriter = new PrintWriter(fileStream);
+			//String inStr;
+			printWriter.println("Name,Team,Job Category,Title,Salary,Contract Expires");
+			for (int i=0;i<fileLength;i++) {
+				printWriter.println(updatedList.get(i).getName()+","+updatedList.get(i).getTeam().getTeamName()+","+updatedList.get(i).getJobCategory()+","+updatedList.get(i).getTitle()+","+updatedList.get(i).getSalary()+","+updatedList.get(i).getEndYear());
+			}
+			printWriter.close();
+			return updatedList;
+
+		} 
+		catch(IOException ioe) {
+			System.out.println("Something went wrong either generating the file or running the method. Check the following errors:");
+			System.err.println("IOException: " + ioe.getMessage());
+			return updatedList;
+		}
+		
+	}
+
 // this one is end of main method
 }
