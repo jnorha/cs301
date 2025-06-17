@@ -80,55 +80,37 @@ public class Coach extends NFLEmployee{
 	}
 	
 	/**
-	 * calcSnapRate method - calculate a player's snaps ratio
-	 * @param: none. Just use the stats attribute
-	 * @return: the ratio of snaps one played
+	 * display style method - presents the type of coaching style the coach has. Only displays for Head Coach, Offensive Coordinator, and Defensive coordinator
+	 * @param: none. Just use attributes
+	 * @return: none. just display their coaching style
 	 */
-	public double calcSnapRate() {
-		//Parse the fields in the stat String
-		String statsArray[] = this.stats.split("-");
-		int snapsPlayed = Integer.parseInt(statsArray[2]);		
-		int snapsTotal = Integer.parseInt(statsArray[3]);
-			
-		if(snapsTotal <=0) {
-			//System.out.println("Snaps total value is invalid");
-			return 0;
-		}		
-		
-		double snapRate = snapsPlayed*1.0/snapsTotal;
-
-		return snapRate;
+	
+	public void displayStyle() {
+		System.out.println(this.getName() + "' coaching style is: " + this.style);
 	}
 	
+	
 	/**
-	 * bonus method - calculate a player's bonus based on his stats
+	 * bonus method - calculate a coaches bonus based on their stats
 	 * @param: none. Just use attributes
 	 * @return: the bonus value
 	 */
 	public double bonus() {
 
 		double bonusValue = 0;
+		
 	
-		double gameAttendance = calcGameRate();
-		double snapRate = calcSnapRate();
+		double winPercent = calcWinPercent();
 		
 		//only qualified if one played more than half of the games
-		if(gameAttendance > 0.5) {
-			//they will get 10% of salary if the snap rate is over 60%, and 20% if the snap rate is over 80%
-			if(snapRate >1.0 || snapRate <0) {
-				System.out.println("The snap rate value is invalid");
-				return 0;
-			}
-			
-			if(snapRate >= 0.8) { //snapRtae >0.8
-				bonusValue = this.getSalary()*0.2;
-			}
-			else if (snapRate >=0.6) {  //snapRtae >0.6 and snapRtae <0.8
-				bonusValue = this.getSalary()*0.1;
-			}
-			else {
+		if(winPercent >= 0.75) {
+			bonusValue = this.getSalary()*0.2;
+		}
+		else if (winPercent >= 0.5 && winPercent < 0.75) {  //snapRtae >0.6 and snapRtae <0.8
+			bonusValue = this.getSalary()*0.1;
+		}
+		else {
 				//bonusValue = 0;
-			}
 		}
 		//else case, bonusValue = 0, no need of handling it
 		
