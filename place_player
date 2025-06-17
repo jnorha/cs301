@@ -1,10 +1,10 @@
 /**
  * Course: CS300 - Summer 2025
- * Program: Player.java for 6/11 class
+ * Program: Player.java for 6/18 class
  * 		A class that defines the attributes and operations about an NFL player
- * Name: Jiazhen Zhou
- * Wisc Email: zhouj@wisc.edu
- * Date:	6/11/25
+ * Name: Josh Daniels
+ * Wisc Email: jndaniels@wisc.edu
+ * Date:	6/16/25
  */
 public class Player extends NFLEmployee{
 
