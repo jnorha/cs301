@@ -24,15 +24,15 @@ public class NFLTeam {
 //--//Methods - setters and getters
 	// ---------------------------------------
 	//Strings first
-	public void setTeam(String teamName){
+	public void setTeamName(String teamName){
 		this.team = teamName;
 	}
-	public String getTeam(){
+	public String getTeamName(){
 		return this.team;
 	}	
 	
 	public void setLocation(String teamLocation) {
-		this.team = teamLocation;
+		this.location = teamLocation;
 	}
 	public String getLocation(){
 		return this.location;
@@ -131,7 +131,7 @@ public class NFLTeam {
 	
 //--// now build the constructor an do initialization with setters
 	public NFLTeam (String teamName, String teamLocation, String teamStadiumName, int teamStadiumCapacity, String teamConference, String teamDivision, int teamStartingYear, String teamCoach) {
-		setTeam(teamName);
+		setTeamName(teamName);
 		setLocation(teamLocation);
 		setStadiumName(teamStadiumName);
 		setStadiumCapacity(teamStadiumCapacity);
