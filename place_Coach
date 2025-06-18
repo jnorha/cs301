@@ -55,7 +55,7 @@ public class Coach extends NFLEmployee{
 	 * @return: the total income
 	 */
 	public double calcIncome() {
-		System.out.println("The Player class calcIncome method is called!");
+		//System.out.println("The Player class calcIncome method is called!");
 		return this.getSalary()+bonus();
 	}
 
@@ -86,7 +86,12 @@ public class Coach extends NFLEmployee{
 	 */
 	
 	public void displayStyle() {
-		System.out.println(this.getName() + "' coaching style is: " + this.style);
+		if(this.style.equals("HC") || this.style.equals("OC") || this.style.equals("DC")) {
+			System.out.println(this.getName() + "' coaching style is: " + this.style);
+		}
+		else {
+			System.out.println("This coach does not have an applied style.");
+		}
 	}
 	
 	
@@ -117,6 +122,26 @@ public class Coach extends NFLEmployee{
 		return bonusValue;		
 		
 	}
-			
+	
+	/**
+	 * Method: printContract
+	 * overrides the other print contract to include coach info
+	 */
+	
+	public void printContract() {
+		//Print out name, and contract information
+		String employeeName = this.getName();
+		String employeeTeam = this.getTeam().getTeamName();
+		String employeeCategory = this.getJobCategory();
+		String employeeTitle = this.getTitle();
+		int employeeExpires = this.getEndYear();
+		double employeeSalary = this.calcIncome();
+		String style = this.style;
+		System.out.printf("%24s %20s %20s %20s %20s %20s \n", "Employee Name", "Team",
+		"Job Category", "Title", "Salary", "Contract Expiring", "Coaching Style");
+		System.out.printf("%24s %20s %20s %20s %20.2f %20d %20s \n", employeeName, employeeTeam,
+				employeeCategory, employeeTitle, employeeSalary,employeeExpires,style);
+		
+	}		
 
 }
