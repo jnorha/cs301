@@ -45,7 +45,7 @@ public class Player extends NFLEmployee{
 	 * @return: the total income
 	 */
 	public double calcIncome() {
-		System.out.println("The Player class calcIncome method is called!");
+		//System.out.println("The Player class calcIncome method is called!");
 		return this.getSalary()+bonus();
 	}
 
