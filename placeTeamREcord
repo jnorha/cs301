@@ -6,7 +6,7 @@
  * Wisc Email: jndaniels@wisc.edu
  * Date:	6/15/25
  */
-public class TeamRecord extends NFLTeam{
+public class TeamRecord {
 	
 	private int wins;
 	private int losses;
@@ -14,9 +14,7 @@ public class TeamRecord extends NFLTeam{
 
 	
 	//Constructor	
-	public TeamRecord(String teamName, String teamLocation, String teamStadiumName, int teamStadiumCapacity, String teamConference, String teamDivision, int teamStartingYear, String teamCoach, int teamWins, int teamLosses, int teamTies) {
-		super(teamName, teamLocation, teamStadiumName, teamStadiumCapacity, 
-				teamConference, teamDivision,teamStartingYear,teamCoach);
+	public TeamRecord (int teamWins, int teamLosses, int teamTies) {
 		setWins(teamWins);
 		setLosses(teamLosses);
 		setTies(teamTies);
