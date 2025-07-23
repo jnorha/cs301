@@ -1,3 +1,4 @@
+
 /**
 *	Date of creation:7/22/25
 *	Author:Josh Daniels
@@ -17,7 +18,7 @@ public class HappyFarm {
 		// first read file into an ArrayList in order to build queues based on file contents
 		//ArrayList<Guest> todayGuests = guestReadIn("GuestLog.csv");
 		
-		ArrayList<Group> groupQueue = guestReadInTwo("GuestLog.csv");
+		ArrayList<Group> groupQueue = guestReadinGroups("GuestLog.csv");
 		// make a linked list of all guests
 		//sort by hour arrived
 		//todayGuests.sort(Comparator.comparing(Guest -> Guest.getGroup()));
@@ -39,28 +40,52 @@ public class HappyFarm {
 		
 		for (int j=0;j<groupQueue.size();j++) {
 			Group inQueue = (Group) groupQueue.get(j);
-			System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
+			//System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
 		}
 		//test adding to a new queue
 		
-		/*
-		MyQueue<Guest> guestQueue = new MyQueue<Guest>();
-		guestQueue.add(todayGuests.get(1));
-		
-		System.out.println("Second Guest is: " + guestQueue.peek().getName() +" who is arriving at " + guestQueue.peek().getArrival());
-		
 		
 		//build an ArrayList of queues
-		ArrayList<MyQueue> rideList = compileRides(guestLinked);
+		ArrayList<MyQueue> rideList = compileRides(groupQueue);
 		
-		for(int p=0;p<rideList.get(0).size;p++) {
-			System.out.println("First Guest is: " + todayGuests.get(0).getName() +" who is arriving at " + todayGuests.get(0).getArrival());
+		for (int j=0;j<rideList.size();j++) {
+			MyQueue ride =  rideList.get(j);
+			System.out.println("Ride #"+(j+1));
+			int rideGuests = 0;
+			LocalTime departureTime = null;
+			for (int k=0;k<ride.size;k++) {
+				int groupSize = ((Group) ride.getNodeAt(k).value).size();
+				if(k==(ride.size-1)) {
+					departureTime = ((Group) ride.getNodeAt(k).value).getLatest();
+				}
+				rideGuests += groupSize;
+			}
+			//account for the edge cases where the ride is NOT at capacity but leaves when the NEXT group to come in arrives
+			if(rideGuests<10 && j!=(rideList.size()-1)) {
+				Group nextUpGroup = ((Group) rideList.get(j+1).getNodeAt(0).value);
+				departureTime = ((LocalTime) nextUpGroup.latest);
+			}
+			System.out.println("DepartureTime: "+ departureTime);
+			
+			System.out.println("Number of Guests: " + rideGuests);
+			for (int y=0;y<ride.size;y++) {
+				Group group = ((Group) ride.getNodeAt(y).value);
+				for (int h=0;h<group.size();h++) {
+					Guest rider = (Guest) group.members.getNodeAt(h).value;
+					System.out.println(rider.getName() + "  "+rider.getArrival()+"  "+rider.getGroup());
+				}
+				
+				//System.out.println("Ride number "+ j + " in the ride queue is "+ ((Group) ride.getNodeAt(y).value).getName() + " with " + ((Group) ride.getNodeAt(y).value).size() + " members. The first member is "+ ((Guest) ((Group) ride.getNodeAt(y).value).members.getNodeAt(0).value).getName());
+			}
+			System.out.println("  ");
+			System.out.println("  ");
 		}
 		
-		*/
+		
+
 
 	}
-	/*
+	/* NOTE: leaving this comment here since it's what lead me to then make the group class on its own
 	//make a static class for the group
 	//time comparison I did find online
 	 private static class Group {
@@ -85,7 +110,7 @@ public class HappyFarm {
 		
 		
 // METHODS
-		
+		//This one I saved in case the file to group ArrayList didn't work well. This was the first one I had tried. 
 		/**
 		 * Method: guestLogIn()
 		 * Function: reads the guest log and builds guest queues
@@ -131,11 +156,11 @@ public class HappyFarm {
 		}
 		
 		/**
-		 * Method: guestLogIn()
+		 * Method: guestReadinGroups()
 		 * Function: reads the guest log and builds guest queues
 		 * @returns single arraylist of all guests
 		 */
-		public static ArrayList<Group> guestReadInTwo(String fileName) {
+		public static ArrayList<Group> guestReadinGroups(String fileName) {
 			
 			ArrayList<Group> groupQueue = new ArrayList<>();
 			
@@ -153,10 +178,10 @@ public class HappyFarm {
 					//Create an object for each record read in
 					String lineStrings [] = inputStr.split(",");
 					//System.out.println(lineStrings[0]+" "+lineStrings[1]+" "+lineStrings[2]+" "+lineStrings[3]+" "+lineStrings[4]+" "+lineStrings[5]+" "+lineStrings[6]+" "+lineStrings[7]+" ");
-					String guestName = lineStrings[0];
-					String timeString = lineStrings[1];
+					String guestName = lineStrings[0].trim();
+					String timeString = lineStrings[1].trim();
 					LocalTime arrivalTime = LocalTime.parse(timeString, formatter);
-					String groupName = lineStrings[2];
+					String groupName = lineStrings[2].trim();
 					
 					Guest guestForGroup = new Guest(guestName, arrivalTime, groupName);
 					//System.out.println(teamForList.getTeamName()); 
@@ -165,7 +190,8 @@ public class HappyFarm {
 					//for (int j=0;j<groupQueue.size;j++) {
 					for(Group g : groupQueue) {
 						//Group inQueue = (Group) groupQueue.getNodeAt(g).value;
-						if(g.getName().equals(guestForGroup.getGroup())){
+						if(g.getName().equalsIgnoreCase(guestForGroup.getGroup())){
+							//System.out.println("Reading Guest "+guestForGroup.getName()+" whos existing group is "+ guestForGroup.getGroup());
 							nextGroup = g;
 							break;
 						}
@@ -174,12 +200,26 @@ public class HappyFarm {
 						String groupName2 = guestForGroup.getGroup();
 						nextGroup = new Group(groupName2);
 						groupQueue.add(nextGroup);
+						//System.out.println("Reading Guest "+guestForGroup.getName()+" whos NOT existing group is "+ guestForGroup.getGroup());
 					}
 					
+					//System.out.println("Adding Guest "+guestForGroup.getName()+" to group "+ nextGroup.getName());
 					nextGroup.add(guestForGroup);
 					
 					inputStr = bufferReader.readLine();
 				}
+				
+				/* Check the groups and their membership
+				for (int j=0;j<groupQueue.size();j++) {
+					Group inQueue = (Group) groupQueue.get(j);
+					System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. It's Members are: ");
+					for(int g=0;g<inQueue.size();g++) {
+						Guest rider = (Guest) inQueue.members.getNodeAt(g).value;
+						System.out.println(rider.getName() + "  "+rider.getArrival()+"  "+rider.getGroup());
+					}
+				}
+				*/
+				
 				
 				return groupQueue;
 				
@@ -198,81 +238,40 @@ public class HappyFarm {
 		 * @param guestList
 		 * @return ArrayList of ride queues
 		 */
-		public static ArrayList<MyQueue> compileRides(LinkedList<Guest> guestLinked){
+		public static ArrayList<MyQueue> compileRides(ArrayList<Group> groupList){
 			ArrayList<MyQueue> rideList = new ArrayList<MyQueue>();
 			
 			//set a dynamic number of rides to send out. Starting with number of guests / 5 meaning each ride would flexably fit 5 riders
-			int numRides = (guestLinked.size / 3);
+			int numRides = (groupList.size() / 3);
 			
-			//make a queue of all groups
-			LinkedList<Group> groupQueue = new LinkedList<Group>(); 
-			//make linkedlist objects for each group
-			
-			
-			
-			//System.out.println("nextup value "+ nextUp.value.getGroup());
-			
-			while(guestLinked.size!=0) {
-				ListNode<Guest> nextUp = guestLinked.deleteHead();
-				Group nextGroup = null;
-				for (int j=0;j<groupQueue.size;j++) {
-					Group inQueue = (Group) groupQueue.getNodeAt(j).value;
-					if(inQueue.getName().equals(nextUp.value.getGroup())){
-						nextGroup = inQueue;
+			//start to move through all groups in the group list and add them to new MyQueue rides
+			while(groupList.size()!=0) {
+				//set up ride to populate with groups
+				MyQueue<Group> ride = new MyQueue<Group>();
+				//set ride capacity to 10 seats
+				int capacity = 10;
+				
+				//while there are still groups needing a ride, grab first in array, assign it to a ride, or break out to previous loop if capacity is too small
+				while(groupList.size()!=0) {
+					Group nextGroup = groupList.get(0);
+					if(nextGroup.size() <= capacity) {
+						ride.add(nextGroup);
+						groupList.remove(0);
+						capacity = capacity - nextGroup.size();
+						if (capacity == 0 || capacity < 0) {
+							break;
+						}
+					}
+					else {
 						break;
 					}
 				}
-				if(nextGroup == null) {
-					String groupName = nextUp.value.getGroup();
-					nextGroup = new Group(groupName);
-					groupQueue.insertAtEnd(nextGroup);
-				}
 				
-				nextGroup.add(nextUp.value);
+				//check
 				
-				/*
-				MyQueue<Guest> group = new MyQueue<Guest>();
-				//group.insertAtEnd(nextUp);
 				
-				if(groupQueue.size()==0) {
-					groupQueue.add(group);
-				}
-				for(int j=0;j<groupQueue.size();j++) {
-					MyQueue<Guest> currentGroup =  (MyQueue<Guest>) groupQueue.getNodeAt(j).value;
-					System.out.println("first in group list size " + currentGroup.size);
-					
-					for(int p=0;p<currentGroup.size;p++) {
-						Guest inAGroup = (Guest) currentGroup.getNodeAt(p).value;
-						System.out.println("current group contains "+ inAGroup.getGroup());
-					}
-					ListNode<Guest> firstInGroup =  currentGroup.getNodeAt(0);
-					
-					System.out.println("Node value: " + firstInGroup.value.getClass());
-				
-					
-					if(nextUp.value.getGroup().equals(((Guest) firstInGroup.value).getGroup())) {
-						group.insertAtEnd(guestLinked.deleteHead());
-					}
-					System.out.println("Current Group Name is "+ ((Guest) firstInGroup.value).getGroup());
-				}
-				*/
-				
-				//nextUp = nextUp.next;
-				
-				Group firstGroup = (Group) groupQueue.getNodeAt(0).value;
-				
-				System.out.println("Group Queue Size is " + groupQueue.size + " first groups name is " + firstGroup.getName() + " " + firstGroup.members.getNodeAt(0));
-				
+				rideList.add(ride);
 			}
-			
-			for (int j=0;j<groupQueue.size;j++) {
-				Group inQueue = (Group) groupQueue.getNodeAt(j).value;
-				System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
-			}
-			
-			
-			
-			
 			
 			
 			return rideList;
