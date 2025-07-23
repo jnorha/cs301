@@ -1,84 +1,27 @@
-/**
- * Class: Guest
- * Function: new object for Happy Farms guest 
- * Name: Josh Daniels
- * Wisc Email: jndaniels@wisc.edu
- */
 
-
-import java.util.*;
 import java.time.*;
 
-public static class Group {
-		//Attributes
-		private String name;
-		private LocalTime lastArrival;
-		private LinkedList<Guest> members;
-		int size;
-		
-		public Group (String groupName, LocalTime maxArrival, 
-		
-		
+public class Group {
+        private String name;
+        final LinkedList<Guest> members = new LinkedList<>();
+        LocalTime latest = LocalTime.MAX;
 
-		
-		//constructor
-		
-		public Guest (String guestName, String arrivalTime, String groupName) {
-			setName(guestName);
-			setArrival(arrivalTime);
-			setGroup(groupName);
-			setArrivalHour();
-			setArrivalMin();
-		}
-
-	//--//Methods - setters and getters
-		// ---------------------------------------
-		//Strings first
-		public void setName(String guestName){
-			this.name = guestName;
-		}
-		public String getName(){
+        Group(String groupName) { 
+        	this.name = groupName; 
+        	}
+        
+        public String getName(){
 			return this.name;
-		}	
-		
-		public void setArrival(String arrivalTime){
-			this.arrival = arrivalTime;
 		}
-		public String getArrival(){
-			return this.arrival;
-		}
-		
-		public void setGroup(String groupName){
-			this.group = groupName;
-		}
-		public String getGroup(){
-			return this.group;
-		}
-		
-		//ints
-		public void setArrivalHour(){
-			//take the first part of arrival string
-			String arrivalStrings [] = arrival.split(":");
-			int arrivalHourInt = Integer.parseInt(arrivalStrings[0]);
-			this.arrivalHour = arrivalHourInt;
-			
-		}
+        
 
-		public int getArrivalHour(){
-			return this.arrivalHour;
-		}
-		
-		
-		public void setArrivalMin(){
-			//take the first part of arrival string
-			String arrivalStrings [] = arrival.split(":");
-			int arrivalMinInt = Integer.parseInt(arrivalStrings[1]);
-			this.arrivalMin = arrivalMinInt;
-			
-		}
-
-		public int getArrivalMin(){
-			return this.arrivalMin;
-		}
-		
-}
+        void add(Guest g) {
+            members.insertAtEnd(g);
+            if (g.getArrival().isBefore(latest)) latest = g.getArrival();
+        }
+        int size() { 
+        	return members.size; 
+        	}
+        
+        
+    }
