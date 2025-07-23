@@ -15,22 +15,31 @@ import java.time.format.DateTimeFormatter;
 public class HappyFarm {
 	public static void main(String[] args) {
 		// first read file into an ArrayList in order to build queues based on file contents
-		ArrayList<Guest> todayGuests = guestReadIn("GuestLog.csv");
+		//ArrayList<Guest> todayGuests = guestReadIn("GuestLog.csv");
+		
+		LinkedList<Group> groupQueue = guestReadInTwo("GuestLog.csv");
 		// make a linked list of all guests
 		//sort by hour arrived
-		todayGuests.sort(Comparator.comparing(Guest -> Guest.getGroup()));
+		//todayGuests.sort(Comparator.comparing(Guest -> Guest.getGroup()));
 		
+		
+		/*
 		LinkedList<Guest> guestLinked = new LinkedList<Guest>();
 		for(int i=0;i<todayGuests.size();i++) {
 			guestLinked.insertAtEnd(todayGuests.get(i));
 		}
+		*/
 		
 		//check
 		//todayGuests.printList();
-		System.out.println("First Guest is: " + todayGuests.get(0).getName() +" who is arriving at " + todayGuests.get(0).getArrival());
 		
+		for (int j=0;j<groupQueue.size;j++) {
+			Group inQueue = (Group) groupQueue.getNodeAt(j).value;
+			System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
+		}
 		//test adding to a new queue
 		
+		/*
 		MyQueue<Guest> guestQueue = new MyQueue<Guest>();
 		guestQueue.add(todayGuests.get(1));
 		
@@ -44,9 +53,31 @@ public class HappyFarm {
 			System.out.println("First Guest is: " + todayGuests.get(0).getName() +" who is arriving at " + todayGuests.get(0).getArrival());
 		}
 		
-		
+		*/
 
 	}
+	/*
+	//make a static class for the group
+	//time comparison I did find online
+	 private static class Group {
+	        final String groupName;
+	        final LinkedList<Guest> members = new LinkedList<>();
+	        LocalTime latestArrival = LocalTime.MAX;   // updated as members added
+
+	        Group(String id) { 
+	        	this.groupName = id; 
+	        	}
+
+	        int size() { 
+	        	return members.size; 
+	        	}
+	        
+	        void add(Guest g)    {
+	            members.insertAtEnd(g);
+	            if (g.getArrival().isBefore(latestArrival)) latestArrival = g.getArrival();
+	        }
+	    }
+	    */
 		
 		
 // METHODS
@@ -65,6 +96,7 @@ public class HappyFarm {
 		
 				FileReader  fileReader = new FileReader(inFile); 
 				BufferedReader bufferReader = new BufferedReader(fileReader);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
 		
 				String inputStr = bufferReader.readLine();
 				inputStr = bufferReader.readLine();
@@ -75,7 +107,7 @@ public class HappyFarm {
 					//System.out.println(lineStrings[0]+" "+lineStrings[1]+" "+lineStrings[2]+" "+lineStrings[3]+" "+lineStrings[4]+" "+lineStrings[5]+" "+lineStrings[6]+" "+lineStrings[7]+" ");
 					String guestName = lineStrings[0];
 					String timeString = lineStrings[1];
-					LocalTime arrivalTime = LocalTime.parse(timeString);
+					LocalTime arrivalTime = LocalTime.parse(timeString, formatter);
 					String groupName = lineStrings[2];
 					
 					Guest guestForList = new Guest(guestName, arrivalTime, groupName);
@@ -94,6 +126,66 @@ public class HappyFarm {
 			
 		}
 		
+		/**
+		 * Method: guestLogIn()
+		 * Function: reads the guest log and builds guest queues
+		 * @returns single arraylist of all guests
+		 */
+		public static LinkedList<Group> guestReadInTwo(String fileName) {
+			
+			LinkedList<Group> groupQueue = new LinkedList<>();
+			
+			try {
+				File inFile = new File(fileName);
+		
+				FileReader  fileReader = new FileReader(inFile); 
+				BufferedReader bufferReader = new BufferedReader(fileReader);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+		
+				String inputStr = bufferReader.readLine();
+				inputStr = bufferReader.readLine();
+		
+				while(inputStr != null ) {
+					//Create an object for each record read in
+					String lineStrings [] = inputStr.split(",");
+					//System.out.println(lineStrings[0]+" "+lineStrings[1]+" "+lineStrings[2]+" "+lineStrings[3]+" "+lineStrings[4]+" "+lineStrings[5]+" "+lineStrings[6]+" "+lineStrings[7]+" ");
+					String guestName = lineStrings[0];
+					String timeString = lineStrings[1];
+					LocalTime arrivalTime = LocalTime.parse(timeString, formatter);
+					String groupName = lineStrings[2];
+					
+					Guest guestForGroup = new Guest(guestName, arrivalTime, groupName);
+					//System.out.println(teamForList.getTeamName()); 
+					
+					Group nextGroup = null;
+					for (int j=0;j<groupQueue.size;j++) {
+						Group inQueue = (Group) groupQueue.getNodeAt(j).value;
+						if(inQueue.getName().equals(guestForGroup.getGroup())){
+							nextGroup = inQueue;
+							break;
+						}
+					}
+					if(nextGroup == null) {
+						String groupName2 = guestForGroup.getGroup();
+						nextGroup = new Group(groupName2);
+						groupQueue.insertAtEnd(nextGroup);
+					}
+					
+					nextGroup.add(guestForGroup);
+					
+					inputStr = bufferReader.readLine();
+				}
+				
+				return groupQueue;
+				
+			}
+			catch (IOException ioe){
+				System.out.println("something went wrong with reading the guest log file");
+				return groupQueue;
+			}
+			
+		}
+		
 		
 		/**
 		 * Method: compileRides()
@@ -108,65 +200,70 @@ public class HappyFarm {
 			int numRides = (guestLinked.size / 3);
 			
 			//make a queue of all groups
-			MyQueue<MyQueue> groupQueue = new MyQueue<MyQueue>(); 
+			LinkedList<Group> groupQueue = new LinkedList<Group>(); 
 			//make linkedlist objects for each group
 			
-			ListNode<Guest> nextUp = guestLinked.getNodeAt(0);
+			
+			
+			//System.out.println("nextup value "+ nextUp.value.getGroup());
 			
 			while(guestLinked.size!=0) {
-				MyQueue<Guest> group = new MyQueue<Guest>();
+				ListNode<Guest> nextUp = guestLinked.deleteHead();
+				Group nextGroup = null;
+				for (int j=0;j<groupQueue.size;j++) {
+					Group inQueue = (Group) groupQueue.getNodeAt(j).value;
+					if(inQueue.getName().equals(nextUp.value.getGroup())){
+						nextGroup = inQueue;
+						break;
+					}
+				}
+				if(nextGroup == null) {
+					String groupName = nextUp.value.getGroup();
+					nextGroup = new Group(groupName);
+					groupQueue.insertAtEnd(nextGroup);
+				}
 				
-				if(groupQueue.size==0) {
-					group.insertAtEnd(guestLinked.deleteHead());
+				nextGroup.add(nextUp.value);
+				
+				/*
+				MyQueue<Guest> group = new MyQueue<Guest>();
+				//group.insertAtEnd(nextUp);
+				
+				if(groupQueue.size()==0) {
+					groupQueue.add(group);
 				}
 				for(int j=0;j<groupQueue.size();j++) {
 					MyQueue<Guest> currentGroup =  (MyQueue<Guest>) groupQueue.getNodeAt(j).value;
-					String currentGroupName = ((Guest) currentGroup.getNodeAt(0).value).getGroup();
-					if(nextUp.value.getGroup().equals(currentGroupName)) {
+					System.out.println("first in group list size " + currentGroup.size);
+					
+					for(int p=0;p<currentGroup.size;p++) {
+						Guest inAGroup = (Guest) currentGroup.getNodeAt(p).value;
+						System.out.println("current group contains "+ inAGroup.getGroup());
+					}
+					ListNode<Guest> firstInGroup =  currentGroup.getNodeAt(0);
+					
+					System.out.println("Node value: " + firstInGroup.value.getClass());
+				
+					
+					if(nextUp.value.getGroup().equals(((Guest) firstInGroup.value).getGroup())) {
 						group.insertAtEnd(guestLinked.deleteHead());
 					}
-					System.out.println("Current Group Name is "+ currentGroupName);
+					System.out.println("Current Group Name is "+ ((Guest) firstInGroup.value).getGroup());
 				}
-				nextUp = nextUp.next;
-				groupQueue.insertAtEnd(group);
-				System.out.println("Group Queue Size is " + groupQueue.size);
+				*/
+				
+				//nextUp = nextUp.next;
+				
+				Group firstGroup = (Group) groupQueue.getNodeAt(0).value;
+				
+				System.out.println("Group Queue Size is " + groupQueue.size + " first groups name is " + firstGroup.getName() + " " + firstGroup.members.getNodeAt(0));
+				
 			}
 			
-			
-			//while the linked list of riders still has memebers waiting for a ride
-			/*
-			while (guestLinked.size!=0) {
-				int numRideGuests = 0;
-				
-				
-				MyQueue<Guest> ride = new MyQueue<Guest>();
-				ListNode<Guest> nextUp = guestLinked.getNodeAt(0);
-				//make temp list of grouped riders
-				List<Guest> groupX = new ArrayList<Guest>();
-				
-				
-				while(nextUp.value.getGroup().equals(((Guest) nextUp.next.value).getGroup()) && guestLinked.head.value != null) {
-					//System.out.println(nextUp.value.getGroup());
-					groupX.add((Guest) guestLinked.deleteAfter(0).value);
-					groupX.add((Guest) guestLinked.deleteHead().value);
-					;
-					;
-				}
-				System.out.println(groupX.size());
-					
-					
-					
-				if(groupX.size() + ride.size < 10) {
-					for(int i=0;i<groupX.size();i++) {
-						ride.insertAtEnd(groupX.get(i));
-				}
-					
-				
-				}
-				rideList.add(ride);
-				
+			for (int j=0;j<groupQueue.size;j++) {
+				Group inQueue = (Group) groupQueue.getNodeAt(j).value;
+				System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
 			}
-			*/
 			
 			
 			
