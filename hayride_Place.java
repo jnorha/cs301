@@ -17,7 +17,7 @@ public class HappyFarm {
 		// first read file into an ArrayList in order to build queues based on file contents
 		//ArrayList<Guest> todayGuests = guestReadIn("GuestLog.csv");
 		
-		LinkedList<Group> groupQueue = guestReadInTwo("GuestLog.csv");
+		ArrayList<Group> groupQueue = guestReadInTwo("GuestLog.csv");
 		// make a linked list of all guests
 		//sort by hour arrived
 		//todayGuests.sort(Comparator.comparing(Guest -> Guest.getGroup()));
@@ -33,8 +33,12 @@ public class HappyFarm {
 		//check
 		//todayGuests.printList();
 		
-		for (int j=0;j<groupQueue.size;j++) {
-			Group inQueue = (Group) groupQueue.getNodeAt(j).value;
+		//______________________________________________________//
+		//Can use remove on the ArrayList to pop out the groups
+		//create a queue of the groups
+		
+		for (int j=0;j<groupQueue.size();j++) {
+			Group inQueue = (Group) groupQueue.get(j);
 			System.out.println("Group number "+ j + " in the group queue is "+ inQueue.getName() + " with " + inQueue.size() +" members. The first member is "+ ((Guest) inQueue.members.getNodeAt(0).value).getName());
 		}
 		//test adding to a new queue
@@ -131,9 +135,9 @@ public class HappyFarm {
 		 * Function: reads the guest log and builds guest queues
 		 * @returns single arraylist of all guests
 		 */
-		public static LinkedList<Group> guestReadInTwo(String fileName) {
+		public static ArrayList<Group> guestReadInTwo(String fileName) {
 			
-			LinkedList<Group> groupQueue = new LinkedList<>();
+			ArrayList<Group> groupQueue = new ArrayList<>();
 			
 			try {
 				File inFile = new File(fileName);
@@ -158,17 +162,18 @@ public class HappyFarm {
 					//System.out.println(teamForList.getTeamName()); 
 					
 					Group nextGroup = null;
-					for (int j=0;j<groupQueue.size;j++) {
-						Group inQueue = (Group) groupQueue.getNodeAt(j).value;
-						if(inQueue.getName().equals(guestForGroup.getGroup())){
-							nextGroup = inQueue;
+					//for (int j=0;j<groupQueue.size;j++) {
+					for(Group g : groupQueue) {
+						//Group inQueue = (Group) groupQueue.getNodeAt(g).value;
+						if(g.getName().equals(guestForGroup.getGroup())){
+							nextGroup = g;
 							break;
 						}
 					}
 					if(nextGroup == null) {
 						String groupName2 = guestForGroup.getGroup();
 						nextGroup = new Group(groupName2);
-						groupQueue.insertAtEnd(nextGroup);
+						groupQueue.add(nextGroup);
 					}
 					
 					nextGroup.add(guestForGroup);
