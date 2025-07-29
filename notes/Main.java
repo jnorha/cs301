@@ -19,13 +19,24 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 	public static void main(String args[]) {
 		
+		//setting up memory data sources
+		ArrayList<Activity> activities = new ArrayList<Activity>();
+		ArrayList<Hero> heroes = new ArrayList<Hero>();
 		
+		//initial scanner
+		Scanner scanAlpha = new Scanner(System.in);
 		
+		//try setting up from file readers
+		ArrayList<Hero> heroes2 = readHeroFile("heroes.csv",scanAlpha);
+		ArrayList<Activity> activities2 = readActivityFile("activityHistory.csv", heroes2);
+		//TO-DO bring in all of the values from the files to the arraylists to be living in memory
+		
+		//heroes2.get(0).printHero();
 		
 		
 		//Testing Methods
 		String activityFileName = "activityHistory.csv";
-		ArrayList<Activity> activities = new ArrayList<Activity>();
+		String heroFileName = "heroes.csv";
 		DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		
 		//test data
@@ -36,10 +47,12 @@ public class Main {
 		*/
 		
 		//activities.add(test);
-				
-		mainMenu(activities);
 		
-		printActivity(activities.get(0));
+		//printActivity(activities2.get(0));
+				
+		mainMenu(activities, heroes);
+		
+		
 		
 	}
 	
@@ -53,14 +66,16 @@ public class Main {
 	 * 
 	 */
 	
-	public static void mainMenu(ArrayList<Activity> activities) {
+	public static void mainMenu(ArrayList<Activity> activities, ArrayList<Hero> heroes) {
 			
 	
 			//Print out the menu, and ask the user to make the choice
 			System.out.println("\n ========== Ascend! Main Menu ==============");
-			System.out.println(" 1 - Upload New Workout");
-			System.out.println(" 2 - Write current activities to CSV");
-			System.out.println(" 3 - exit");
+			System.out.println(" 1 - Create New Hero");
+			System.out.println(" 2 - Upload New Workout");
+			System.out.println(" 3 - Write current activities to CSV");
+			System.out.println(" 4 - Write hero changes to CSV");
+			System.out.println(" 5 - exit");
 			System.out.println(" Your choice:");
 			Scanner input = new Scanner(System.in);
 			int choice = input.nextInt();
@@ -70,21 +85,38 @@ public class Main {
 			//starting with case 1 of uploading a new activity
 			switch(choice) {
 				case 1:
+					//MAKE SURE TO CHECK FOR DUPLICATE HERO NAMES
+					
+					String heroFileName = "heroes.csv";
+					//part of the createNewHero method checks the current arraylist in memory for duplicates
+					Hero newHero = createNewHero(input, heroes);
+					heroes.add(newHero);
+					//add it to the heroes file as well before we forget
+					appendHero(heroFileName,newHero);
+					mainMenu(activities, heroes);
+					break;
+					
+				case 2:
 					uploadActivity(input, activities);
-					mainMenu(activities);
+					mainMenu(activities, heroes);
 					
 					
 					break;
 					
-				case 2:
+				case 3:
 					String activityFileName = "activityHistory.csv";
 					System.out.println("Writing activities file...");
 					writeActivityCSV(activityFileName, activities);
-					mainMenu(activities);
+					mainMenu(activities, heroes);
                 
+                    break;
+                    
+				case 4:
+					System.out.println("Exiting");
+                    input.close();
                     return;
                     
-				case 3:
+				case 5:
 					System.out.println("Exiting");
                     input.close();
                     return;
@@ -208,6 +240,34 @@ public class Main {
 	
 	}
 	
+	/**
+	 * Method: appendHero()
+	 * Function: appends a single hero to the heroes file
+	 * @param fileName,Hero newHero
+	 * 
+	 */
+
+	public static void appendHero(String fileName, Hero newHero) {
+		//first do path
+		Path path = Path.of("C:\\temp\\"+ fileName);
+		try (BufferedWriter fw = Files.newBufferedWriter(path,StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+
+            
+			String megaHeroString = (newHero.getName()+","+newHero.getLevel()+","+newHero.getHealth()+","+newHero.getStrength()+","+newHero.getSpeed()+","+newHero.getRunSkill()+","+newHero.getBikeSkill()+","+newHero.getSwimSkill()+","+newHero.getWeightSkill());
+
+            fw.write(megaHeroString);
+            fw.newLine();
+           
+
+            System.out.println("Wrote new hero "+ newHero.getName() + " to " + path.toString());
+        }
+        catch (IOException ioe) {
+            System.err.println("Failed writing CSV: " + ioe.getMessage());
+        }
+	}
+	
+	
+	
 	
 	/**
 	 * Method: activityToRow()
@@ -216,11 +276,12 @@ public class Main {
 	 * 
 	 */
 	private static String activityToRow(Activity act) {
-		// create a list that will hold all attributes
+		// create a list that will hold all attributes, list is good because it holds everything in order even if you're not recording values due to different subclass workout
 	    String[] vals = new String[11];
+	    //set standard date time
 	    DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 	
-	    // common fields
+	    // base class fields
 	    vals[0] = act.getCharacter().getName();
 	    vals[1] = act.getDate().format(ISO);
 	    vals[2] = act.getType();
@@ -229,38 +290,43 @@ public class Main {
 	
 	    // subclass‐specific
 	    if (act instanceof Run) {
-	        Run r = (Run) act;
-	        vals[5] = String.valueOf(r.getDistance());
-	        vals[6] = String.valueOf(r.getElevHigh());
-	        vals[7] = String.valueOf(r.getElevLow());
-	        vals[8] = String.valueOf(r.getElevChange());
+	        vals[5] = String.valueOf(((Run) act).getDistance());
+	        vals[6] = String.valueOf(((Run) act).getElevHigh());
+	        vals[7] = String.valueOf(((Run) act).getElevLow());
+	        vals[8] = String.valueOf(((Run) act).getElevChange());
 	    }
+	    
 	    else if (act instanceof Bike) {
-	        Bike b = (Bike) act;
-	        // ensure derived fields are up to date
-
-	        vals[5]  = String.valueOf(b.getDistance());
-	        vals[6]  = String.valueOf(b.getElevHigh());
-	        vals[7]  = String.valueOf(b.getElevLow());
-	        vals[8]  = String.valueOf(b.getElevChange());
+	        vals[5] = String.valueOf(((Bike) act).getDistance());
+	        vals[6] = String.valueOf(((Bike) act).getElevHigh());
+	        vals[7] = String.valueOf(((Bike) act).getElevLow());
+	        vals[8] = String.valueOf(((Bike) act).getElevChange());
 	    }
+	    
 	    else if (act instanceof Swim) {
-	        Swim s = (Swim) act;
-	        vals[5]  = String.valueOf(s.getDistance());
+	        vals[5] = String.valueOf(((Swim) act).getDistance());
 	    }
+	    
 	    else if (act instanceof Weights) {
-	        Weights w = (Weights) act;
-	        vals[9] = String.valueOf(w.getReps());
-	        vals[10] = String.valueOf(w.getWeightInLbs());
+	        vals[9] = String.valueOf(((Weights) act).getReps());
+	        vals[10] = String.valueOf(((Weights) act).getWeightInLbs());
 	    }
 	
-	    // join, replacing any nulls with empty strings
+	    // create one mega string with all the values
 	    for (int i = 0; i < vals.length; i++) {
-	        if (vals[i] == null) vals[i] = "";
+	    	//write any null values
+	        if (vals[i] == null) { 
+	        	vals[i] = "";
+	        }
 	    }
-	    return String.join(",", vals);
+	    
+	    String megaString = String.join(",", vals);
+	    return megaString;
 	}
 	
+	
+	
+//--// Methods for generating new player content //--//	
 	/**
 	 * Method: uploadActivity()
 	 * Function: add a new workout to the running memory array list of workouts
@@ -295,8 +361,8 @@ public class Main {
             Activity activity = null;
 
             // follow up prompts based on type of activity
-            switch (type.toLowerCase()) {
-                case "run":
+            switch (type) {
+                case "Run":
                     System.out.println("Enter distance (miles): ");
                     int runDist = Integer.parseInt(input.nextLine().trim());
                     System.out.println("Enter elevation high (ft): ");
@@ -306,7 +372,7 @@ public class Main {
                     activity = new Run(hero, date, "Run", duration, hr, runDist, runHigh, runLow);
                     break;
 
-                case "bike":
+                case "Bike":
                     System.out.println("Enter distance (miles): ");
                     int bikeDist = Integer.parseInt(input.nextLine().trim());
                     System.out.println("Enter elevation high (ft): ");
@@ -317,14 +383,14 @@ public class Main {
                     activity = bike;
                     break;
 
-                case "swim":
+                case "Swim":
                     System.out.println("Enter distance (yards): ");
                     int swimDist = Integer.parseInt(input.nextLine().trim());
                     Swim swim = new Swim(hero, date, "Swim", duration, hr, swimDist);
                     activity = swim;
                     break;
 
-                case "weights":
+                case "Weights":
                     System.out.println("Enter reps: ");
                     int reps = Integer.parseInt(input.nextLine().trim());
                     System.out.println("Enter weight (lbs): ");
@@ -353,6 +419,249 @@ public class Main {
         
     }
 	
+	/**
+	 * Method: uploadActivity()
+	 * Function: add a new workout to the running memory array list of workouts
+	 * @param ArrayList<Activity> activities, scanner
+	 * 
+	 */
+	
+	private static Hero createNewHero(Scanner input, ArrayList<Hero> heroes) {
+		System.out.print("Enter hero name: ");
+        String name = input.nextLine();
+        //creates a new hero with all default values
+        Hero newHero = new Hero(name);
+        // you could prompt for other starting stats here...
+        return newHero;
+	}
+	
+
+//--//Methods for Reading Files //---------//
+	/**
+	 * Method: ingests activity history file and returns an object arraylist
+	 * @params input filename
+	 * @return arrayList of activity objects
+	 */
+		
+	public static ArrayList<Activity> readActivityFile(String fileName, ArrayList<Hero> heroes) {
+	
+		ArrayList<Activity> fileArray = new ArrayList<>();
+		String filePath = "C:\\temp\\"+fileName;
+		
+		try {
+			//set up variables
+			DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	
+			FileReader  fileReader = new FileReader(filePath); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
+	
+			String inputStr = bufferReader.readLine();
+			//skip header
+			inputStr = bufferReader.readLine();
+	
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				//check
+				//System.out.println(lineStrings[0]+" "+lineStrings[1]+" "+lineStrings[2]+" "+lineStrings[3]+" "+lineStrings[4]+" "+lineStrings[5]+" "+lineStrings[6]+" "+lineStrings[7]+" ");
+				String heroString = lineStrings[0]; //need to look through current heroes to add to right one
+				LocalDate date = LocalDate.parse(lineStrings[1], ISO);
+				String actTypeString = lineStrings[2];
+				int duration = Integer.parseInt(lineStrings[3]);
+				int heartRate = Integer.parseInt(lineStrings[4]);
+				
+				//Need to account for ALL attributes since each row will have all 11 spots
+				// this didn't work here to parse null values, going to try to only parse the necessary spots per activity and skip parsing the null strings
+				/*
+				int distance = Integer.parseInt(lineStrings[5]);
+				int elevHigh = Integer.parseInt(lineStrings[6]);
+				int elevLow = Integer.parseInt(lineStrings[7]);
+				//int elevChange = Integer.parseInt(lineStrings[8]); //nothing actually reads this in
+				int reps = Integer.parseInt(lineStrings[9]);
+				int weightInLbs = Integer.parseInt(lineStrings[10]);
+				*/
+				
+				//should we create a new hero here? or throw an error...? 
+				//I'd like this to just be an automated part of program start up so going to just roll with Placeholder for now
+				
+				Hero temp = new Hero("PLACEHOLDER");
+				
+				//first, find the hero to correlate
+				for(Hero h : heroes) {
+					if(h.getName().equals(heroString)) {
+						temp = h;
+					}
+				}
+				if(temp.getName().equals("PLACEHOLDER")) {
+					System.out.println("NO HERO FOUND FOR ACTIVITY");
+				}
+				
+				//Now we take each of these and put them into the correct activity based on Type
+				if(actTypeString.equals("Run")) {
+					int distance = Integer.parseInt(lineStrings[5]);
+					int elevHigh = Integer.parseInt(lineStrings[6]);
+					int elevLow = Integer.parseInt(lineStrings[7]);
+					Run readAct = new Run(temp,date,actTypeString,duration,heartRate,distance,elevHigh,elevLow);
+					fileArray.add(readAct); 
+				}
+				
+				else if(actTypeString.equals("Bike")) {
+					int distance = Integer.parseInt(lineStrings[5]);
+					int elevHigh = Integer.parseInt(lineStrings[6]);
+					int elevLow = Integer.parseInt(lineStrings[7]);
+					Bike readAct = new Bike(temp,date,actTypeString,duration,heartRate,distance,elevHigh,elevLow);
+					fileArray.add(readAct); 
+				}
+				
+				else if(actTypeString.equals("Swim")) {
+					int distance = Integer.parseInt(lineStrings[5]);
+					Swim readAct = new Swim(temp,date,actTypeString,duration,heartRate,distance);
+					fileArray.add(readAct); 
+				}
+				
+				else if(actTypeString.equals("Weights")) {
+					int reps = Integer.parseInt(lineStrings[9]);
+					int weightInLbs = Integer.parseInt(lineStrings[10]);
+					Weights readAct = new Weights(temp,date,actTypeString,duration,heartRate,reps, weightInLbs);
+					fileArray.add(readAct); 
+				}
+				
+				else {
+					throw new IllegalArgumentException("Unknown activity type: " + actTypeString);
+				}
+				
+				//System.out.println(teamForList.getTeamName());
+				
+				inputStr = bufferReader.readLine();
+			}
+			bufferReader.close();
+			return fileArray;
+			
+		}
+		catch (IOException ioe){
+			System.out.println("something went wrong with reading the file");
+			return fileArray;
+		}
+		
+	}
+	
+	/**
+	 * Method: ingests hero file and returns an object arraylist
+	 * @params input filename
+	 * @return arrayList of hero objects
+	 */
+		
+	public static ArrayList<Hero> readHeroFile(String fileName, Scanner input) {
+	
+		ArrayList<Hero> fileArray = new ArrayList<>();
+		String filePath = "C:\\temp\\"+fileName;				
+		
+		try {
+			FileReader  fileReader = new FileReader(filePath); 
+			BufferedReader bufferReader = new BufferedReader(fileReader);
+	
+			String inputStr = bufferReader.readLine();
+			//skip header
+			inputStr = bufferReader.readLine();
+			
+			while(inputStr != null ) {
+				//Create an object for each record read in
+				String lineStrings [] = inputStr.split(",");
+				//
+				//System.out.println(lineStrings[0]+lineStrings[1]);
+				//
+				//we want to make sure there are no null values for heros. IF blank, they should be corrected to 0
+				for(int x=0;x<lineStrings.length;x++) {
+					if(lineStrings[x].equals("")) {
+						lineStrings[x] = "0";
+					}
+				}
+				//
+				/*
+				for(int y=0;y<lineStrings.length;y++) {
+					System.out.print(lineStrings[y]);
+				}
+				*/
+				//
+				String heroString = lineStrings[0];
+				//set all values first -- these should ALWAYS have an integer to parse since even at no level there should be 0
+				int heroLevel = Integer.parseInt(lineStrings[1]);
+				int health = Integer.parseInt(lineStrings[2]);
+				int strength = Integer.parseInt(lineStrings[3]);
+				int runSkill = Integer.parseInt(lineStrings[4]);
+				int bikeSkill = Integer.parseInt(lineStrings[5]);
+				int swimSkill = Integer.parseInt(lineStrings[6]);
+				int weightSkill = Integer.parseInt(lineStrings[7]);
+						
+				//create hero object based on the name and then generate all of the statistics								
+				//should also check to make sure there isn't already a hero with that name...?
+				boolean duplicate = false;
+				//in case of match, report on the level of each and ask which they would like to remove
+				for (int h=0;h<fileArray.size();h++) {
+					if(((Hero) fileArray.get(h)).getName().equals(heroString)) {
+						System.out.println("Duplicate heroes found!! select which you would like to keep: ");
+						System.out.println("A) "+((Hero) fileArray.get(h)).getName()+" Lvl: "+((Hero) fileArray.get(h)).getLevel());
+						System.out.println("B) "+heroString+" Lvl: "+heroLevel);
+						String choice = input.nextLine().toLowerCase();
+						
+						switch(choice) {
+						case "a":
+							//do nothing
+							break;
+						case "b":
+							Hero newHero = new Hero(heroString);
+							newHero.setLevel(heroLevel);
+							newHero.setHealth(health);
+							newHero.setStrength(strength);
+							newHero.setRunSkill(runSkill);
+							newHero.setBikeSkill(bikeSkill);
+							newHero.setSwimSkill(swimSkill);
+							newHero.setWeightSkill(weightSkill);
+							
+							//finally put the new hero in the spot of the one we just chose to ignore
+							fileArray.set(h, newHero);
+							//need to set our replacement check so we don't create a new hero after the replacement
+							duplicate = true;
+						}
+											
+					}
+				}
+				
+				//moving on from matching hero name check
+				//if name did not match, we have to add our new hero to the array
+				if(duplicate==false) {
+					Hero newHero = new Hero(heroString);
+					//set all of the stats
+					newHero.setLevel(heroLevel);
+					newHero.setHealth(health);
+					newHero.setStrength(strength);
+					newHero.setRunSkill(runSkill);
+					newHero.setBikeSkill(bikeSkill);
+					newHero.setSwimSkill(swimSkill);
+					newHero.setWeightSkill(weightSkill);
+					
+					//newHero.printHero();
+					//add to array
+					fileArray.add(newHero);
+				}
+				
+				inputStr = bufferReader.readLine();
+			}
+			bufferReader.close();
+			//System.out.println(fileArray.get(0).getName());
+			return fileArray;
+			
+			
+		}
+		catch (IOException ioe){
+			System.out.println("something went wrong with reading the file");
+			return fileArray;
+		}
+	}
+	
+	
+	
+//--// Methods for printing
 	/**
 	 * Method printActivity()
 	 * @param <Activity> activity
