@@ -26,6 +26,15 @@ public class Bike extends Activity {
         setElevLow(elevationLow);
         setElevChange(elevationLow, elevationHigh);
     }
+    
+    public Bike(Hero playerHero, LocalDate inDate, String inType, int inDuration,
+            int heartRate, double inDist, int elevationHigh, int elevationLow) {
+    super(playerHero, inDate, inType, inDuration, heartRate);
+    setDistance(inDist);
+    setElevHigh(elevationHigh);
+    setElevLow(elevationLow);
+    setElevChange(elevationLow, elevationHigh);
+}
 
     // Getters and Setters
     public int getDistance() {
@@ -35,6 +44,10 @@ public class Bike extends Activity {
     public void setDistance(int inDist) {
         this.distance = inDist;
     }
+    
+    public void setDistance(double inDist) {
+		this.distance = (int) Math.round(inDist);
+	}
 
     public int getElevHigh() {
         return elevHigh;
