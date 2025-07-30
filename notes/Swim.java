@@ -22,6 +22,13 @@ public class Swim extends Activity {
         setDistance(inDist);
         //setStroke(inStroke);
     }
+    
+    public Swim(Hero playerHero, LocalDate inDate, String inType, int inDuration,
+            int heartRate, double inDist) {
+    super(playerHero, inDate, inType, inDuration, heartRate);
+    setDistance(inDist);
+    //setStroke(inStroke);
+}
 
     // Getter and Setter
     public int getDistance() {
@@ -31,6 +38,10 @@ public class Swim extends Activity {
     public void setDistance(int inDist) {
         this.distance = inDist;
     }
+    
+    public void setDistance(double inDist) {
+		this.distance = (int) Math.round(inDist);
+	}
     
     /*
     public String getStroke() {
