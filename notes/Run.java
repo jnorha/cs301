@@ -28,6 +28,17 @@ public class Run extends Activity{
 		setElevChange(elevationLow, elevationHigh);
 	}
 	
+	//second constructor with double as input
+	
+	public Run(Hero playerHero, LocalDate inDate, String inType, int inDuration, int heartRate, double inDist, int elevationHigh, int elevationLow) {
+		super(playerHero, inDate, inType, inDuration, 
+				heartRate);
+		setDistance(inDist);
+		setElevHigh(elevationHigh);
+		setElevLow(elevationLow);
+		setElevChange(elevationLow, elevationHigh);
+	}
+	
 //--//Methods: Getters and Setters
 	public int getDistance() {
 		return distance;
@@ -35,6 +46,11 @@ public class Run extends Activity{
 	
 	public void setDistance(int inDist) {
 		this.distance = inDist;
+	}
+	
+	//check for if they provide a double, which many do their distance
+	public void setDistance(double inDist) {
+		this.distance = (int) Math.round(inDist);
 	}
 	
 	public int getElevHigh() {
