@@ -49,8 +49,10 @@ public class Main {
 		//activities.add(test);
 		
 		//printActivity(activities2.get(0));
-				
-		mainMenu(activities, heroes);
+		
+		//heroes2.get(0).printHero();
+		Scanner input = new Scanner(System.in);		
+		mainMenu(activities2, heroes2, input);
 		
 		
 		
@@ -66,68 +68,191 @@ public class Main {
 	 * 
 	 */
 	
-	public static void mainMenu(ArrayList<Activity> activities, ArrayList<Hero> heroes) {
+	public static void mainMenu(ArrayList<Activity> activities, ArrayList<Hero> heroes, Scanner input) {
 			
 	
 			//Print out the menu, and ask the user to make the choice
 			System.out.println("\n ========== Ascend! Main Menu ==============");
 			System.out.println(" 1 - Create New Hero");
-			System.out.println(" 2 - Upload New Workout");
-			System.out.println(" 3 - Write current activities to CSV");
-			System.out.println(" 4 - Write hero changes to CSV");
-			System.out.println(" 5 - exit");
+			System.out.println(" 2 - Select Hero");
+			/*
+			 * Going to make these automated parts of save and exit program
+			//System.out.println(" 3 - Write current activities to CSV");
+			//System.out.println(" 4 - Write hero changes to CSV");
+			*/
+			
+			System.out.println(" 3 - Save & Exit");
 			System.out.println(" Your choice:");
-			Scanner input = new Scanner(System.in);
+			
 			int choice = input.nextInt();
 			//dummy next line
 			input.nextLine();
 			
 			//starting with case 1 of uploading a new activity
-			switch(choice) {
-				case 1:
-					//MAKE SURE TO CHECK FOR DUPLICATE HERO NAMES
-					
-					String heroFileName = "heroes.csv";
-					//part of the createNewHero method checks the current arraylist in memory for duplicates
-					Hero newHero = createNewHero(input, heroes);
-					heroes.add(newHero);
-					//add it to the heroes file as well before we forget
-					appendHero(heroFileName,newHero);
-					mainMenu(activities, heroes);
-					break;
-					
-				case 2:
-					uploadActivity(input, activities);
-					mainMenu(activities, heroes);
-					
-					
-					break;
-					
-				case 3:
-					String activityFileName = "activityHistory.csv";
-					System.out.println("Writing activities file...");
-					writeActivityCSV(activityFileName, activities);
-					mainMenu(activities, heroes);
-                
-                    break;
-                    
-				case 4:
-					System.out.println("Exiting");
-                    input.close();
-                    return;
-                    
-				case 5:
-					System.out.println("Exiting");
-                    input.close();
-                    return;
-
-					
-				default:
-					System.out.println("Invalid input, try again ...");
+			while(true) {
+				
+				switch(choice) {
+					case 1:
+						//MAKE SURE TO CHECK FOR DUPLICATE HERO NAMES
+						
+						String heroFileName = "heroes.csv";
+						//part of the createNewHero method checks the current arraylist in memory for duplicates
+						Hero newHero = createNewHero(input, heroes);
+						heroes.add(newHero);
+						/*
+						 * dont need this anymore since we will clean this up at the end of session with hero
+						//add it to the heroes file as well before we forget
+						//appendHero(heroFileName,newHero);
+						 */
+						//take new hero as hero and go to action menu
+						actionMenu(newHero, heroes, activities , input);						
+						break;
+						
+					case 2:
+						//find hero from list of current heroes
+						System.out.println("Hero name?");
+						String heroChoice = input.nextLine();
+						Hero selectedHero = new Hero("Temp");
+						for(Hero h : heroes) {
+							if(h.getName().toLowerCase().equals(heroChoice.toLowerCase())) {
+								selectedHero = h;
+							}
+						}
+						
+						if(selectedHero.getName().equals("Temp")) {
+							System.out.println("Hero "+heroChoice + " not found - Please create new hero named "+heroChoice);
+							mainMenu(activities,heroes, input);
+							
+						}
+						//launch action menu
+						actionMenu(selectedHero, heroes, activities, input);												
+						break;
+						
+						//Save & Exit
+					case 3:
+						/* going to do this in each action step actually. 
+						 * so each time a new activity is uploaded the activity file is just appended
+						 * We will need to update the hero row in the hero file when exiting the action menu
+						 */
+						System.out.println("All changes saved. Thanks for playing!");
+						//input.close();	                
+	                    System.exit(0);
+	                    
+	
+						
+					default:
+						System.out.println("Invalid input, try again ...");
+						mainMenu(activities,heroes, input);
+				}
 							
 			}
 			
 		}
+	
+	
+	
+	/**
+	 * Method: actionMenu()
+	 * Function: once a player either selects a hero from available heroes or creates a new hero they choose what to do with that hero
+	 * @param hero, activityHistory
+	 */
+	
+	public static void actionMenu(Hero hero, ArrayList<Hero> heroes, ArrayList<Activity> activityHistory, Scanner input) {
+		//Print out the menu, and ask the user to make the choice
+		System.out.println("\n ============ Action Menu (Selected Hero "+hero.getName()+") ===============");
+		System.out.println(" 1 - Check Hero Stats!");
+		System.out.println(" 2 - Upload New Workout");
+		System.out.println(" 3 - Save Hero & Exit to Main Menu");
+		System.out.println(" Your choice:");
+		
+		int choice = input.nextInt();
+		//dummy next line
+		input.nextLine();
+		
+		//starting with case 1 of uploading a new activity
+		while(true) {
+			switch(choice) {
+			case 1:
+				//MAKE SURE TO CHECK FOR DUPLICATE HERO NAMES
+				hero.printHero();
+				actionMenu(hero,heroes,activityHistory,input);
+				break;
+				
+			case 2:
+				activityHistory = uploadActivity(input, activityHistory, hero);
+				//first get only activities for this hero into a new arraylist of activities and pass the most recent one to the gain exp
+				ArrayList<Activity> heroActivities = new ArrayList<Activity>();
+				for (Activity a : activityHistory) {
+					if(a.getCharacter().equals(hero)) {
+						heroActivities.add(a);
+					}
+				}
+				//printActivity(heroActivities.get(0));
+				hero.gainExp(heroActivities, heroActivities.get(heroActivities.size()-1));
+				actionMenu(hero,heroes,activityHistory,input);
+				break;
+				
+			case 3:
+				/*
+				 * need to save the hero info here as you exit the program. 
+				 */
+				System.out.println("Writing changes for " + hero.getName() + " to hero file...");
+				String heroFileName = "heroes.csv";
+				writeHeroCSV(heroFileName, heroes, hero);
+				System.out.println("Returning to Main Menu");
+                mainMenu(activityHistory, heroes, input);
+                break;	
+				
+				
+			default:
+				System.out.println("Invalid input, try again ...");
+				actionMenu(hero,heroes,activityHistory,input);
+			
+			}
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Method: writeHeroCSV()
+	 * Function: writes the updated hero information to the csv location. OVERWRITES THE HERO FILE
+	 * @param filename, ArrayList<Hero> heroes, Hero hero
+	 */
+	public static void writeHeroCSV(String fileName, ArrayList<Hero> heroes, Hero hero) {
+		//first find the selected hero in the ArrayList and make sure it's updated to the correct value
+		for(Hero h : heroes) {
+			if(h.getName().equals(hero.getName())) {
+				h = hero;
+			}
+		}
+		
+		//write the 9 columns ALL heroes will have
+		String header = "hero,level,HP,strength,speed,runSkill,bikeSkill,swimSkill,weightSkill";
+		//path to file
+		Path filePath = Path.of("C:\\temp\\"+fileName);
+		
+		//use buffered writer to create new hero file
+		try (BufferedWriter fw = Files.newBufferedWriter(filePath,StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+
+            // 1) Write header
+            fw.write(header);
+            fw.newLine();
+
+            // 2) Write each activity
+            for (Hero h : heroes) {
+    			String megaHeroString = (h.getName()+","+h.getLevel()+","+h.getHealth()+","+h.getStrength()+","+h.getSpeed()+","+h.getRunSkill()+","+h.getBikeSkill()+","+h.getSwimSkill()+","+h.getWeightSkill());
+                fw.write(megaHeroString);
+                fw.newLine();
+            }
+        }
+        catch (IOException ioe) {
+            System.err.println("Failed writing CSV: " + ioe.getMessage());
+        }
+	
+		
+	}
 	
 	
 	
@@ -143,11 +268,8 @@ public class Main {
 		//throw exception if can't find file for some reason (should just write to local "activities" dir for now)5
 		// Superset header matching your 11 columns
         String header = "hero,date,type,duration,heartRate,distance,elevHigh,elevLow,elevChange,reps,weightInLbs";
-        Path filePath = Path.of("C:\\temp\\"+fileName);
-                      
-
-        // Use try-with-resources to auto-close & overwrite the file each run
-        
+        Path filePath = Path.of("C:\\temp\\"+fileName);                    
+       
         // Found examples of BufferedWriter online which seem to work better with paths and read/write
         try (BufferedWriter fw = Files.newBufferedWriter(filePath,StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
@@ -334,16 +456,19 @@ public class Main {
 	 * 
 	 */
 	
-	private static ArrayList<Activity> uploadActivity(Scanner input, ArrayList<Activity> activities) {
+	private static ArrayList<Activity> uploadActivity(Scanner input, ArrayList<Activity> activities, Hero hero) {
 		//set up try/catch to handle IO exceptions
 		
         try {
         	DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         	
             // Gather the base Activity fields
+        	/*
+        	 * set working hero as the hero
             System.out.println("Enter hero name: ");
             String heroName = input.nextLine();
             Hero hero = new Hero(heroName);
+            */
 
             System.out.println("Enter Date (YYYY/MM/DD): ");
             String dateStr = input.nextLine().trim();
@@ -408,6 +533,7 @@ public class Main {
             // write the new activity to the arraylist in memory and append to the file
             activities.add(activity);
             appendActivityFile("activityHistory.csv", activity);
+            
             System.out.println(type + " workout saved successfully and added to file!");
             return activities;
 
