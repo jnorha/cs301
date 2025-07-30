@@ -21,6 +21,7 @@ public class Hero {
     private int swimSkill;
     private int weightSkill;
     private double exp;
+    private int floor;
 	
 	public Hero(String inName) {
 		setName(inName);
@@ -34,6 +35,7 @@ public class Hero {
         this.swimSkill   = 0;
         this.weightSkill = 0;
         this.exp         = 0;
+        this.floor       = 0;
 	
 	}
 	
@@ -116,6 +118,14 @@ public class Hero {
     
     public void setExp(double inExp) {
         this.exp = inExp;
+    }
+    
+    public int getFloor() {
+        return floor;
+    }
+    
+    public void setFloor(int inFloor) {
+        this.floor = inFloor;
     }
     
     
@@ -280,8 +290,9 @@ public class Hero {
 		int bikeSkill = this.getBikeSkill();
 		int swimSkill = this.getSwimSkill();
 		int weightSkill = this.getWeightSkill();
+		int currentFloor = this.getFloor();
 		
-		String heroDescription = String.format("%s (Lvl %d) - HP:%d STR:%d SPD:%d (Skills) - RUN:%d BIKE:%d SWIM:%d WT:%d", heroName, heroLevel,
+		String heroDescription = String.format("%s (Lvl %d) Current Floor: %d - HP:%d STR:%d SPD:%d (Skills) - RUN:%d BIKE:%d SWIM:%d WT:%d", heroName, heroLevel, currentFloor,
 				heroHealth, heroStrength, heroSpeed,runSkill,bikeSkill,swimSkill,weightSkill);
 		
 		System.out.println(heroDescription);
