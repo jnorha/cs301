@@ -11,7 +11,7 @@ import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.format.*;
 
 
 
@@ -61,7 +61,7 @@ public class Main {
 	
 //--//METHODS
 	
-	
+//--// Menu Methods //--//	
 	/**
 	 * Method: mainMenu();
 	 * Function: initial login option to take users to their next choice
@@ -213,7 +213,19 @@ public class Main {
 		
 	}
 	
+
 	
+//--// Gameplay Methods
+	/**
+	 * Method: doChallenge()
+	 * Function: player hero takes on a challenge and is tested against enemy, if they win they go up a floor
+	 * @Param hero
+	 */
+	
+	
+	
+	
+//--// Methods for writing to existing files/overwriting files
 	
 	/**
 	 * Method: writeHeroCSV()
@@ -229,7 +241,7 @@ public class Main {
 		}
 		
 		//write the 9 columns ALL heroes will have
-		String header = "hero,level,HP,strength,speed,runSkill,bikeSkill,swimSkill,weightSkill";
+		String header = "hero,level,HP,strength,speed,runSkill,bikeSkill,swimSkill,weightSkill,exp,floor";
 		//path to file
 		Path filePath = Path.of("C:\\temp\\"+fileName);
 		
@@ -242,7 +254,7 @@ public class Main {
 
             // 2) Write each activity
             for (Hero h : heroes) {
-    			String megaHeroString = (h.getName()+","+h.getLevel()+","+h.getHealth()+","+h.getStrength()+","+h.getSpeed()+","+h.getRunSkill()+","+h.getBikeSkill()+","+h.getSwimSkill()+","+h.getWeightSkill());
+    			String megaHeroString = (h.getName()+","+h.getLevel()+","+h.getHealth()+","+h.getStrength()+","+h.getSpeed()+","+h.getRunSkill()+","+h.getBikeSkill()+","+h.getSwimSkill()+","+h.getWeightSkill()+","+h.getExp()+","+h.getFloor());
                 fw.write(megaHeroString);
                 fw.newLine();
             }
@@ -375,7 +387,7 @@ public class Main {
 		try (BufferedWriter fw = Files.newBufferedWriter(path,StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
 
             
-			String megaHeroString = (newHero.getName()+","+newHero.getLevel()+","+newHero.getHealth()+","+newHero.getStrength()+","+newHero.getSpeed()+","+newHero.getRunSkill()+","+newHero.getBikeSkill()+","+newHero.getSwimSkill()+","+newHero.getWeightSkill());
+			String megaHeroString = (newHero.getName()+","+newHero.getLevel()+","+newHero.getHealth()+","+newHero.getStrength()+","+newHero.getSpeed()+","+newHero.getRunSkill()+","+newHero.getBikeSkill()+","+newHero.getSwimSkill()+","+newHero.getWeightSkill()+","+newHero.getExp()+","+newHero.getFloor());
 
             fw.write(megaHeroString);
             fw.newLine();
@@ -469,57 +481,76 @@ public class Main {
             String heroName = input.nextLine();
             Hero hero = new Hero(heroName);
             */
-
-            System.out.println("Enter Date (YYYY/MM/DD): ");
-            String dateStr = input.nextLine().trim();
-            LocalDate date = LocalDate.parse(dateStr, ISO);
-
+        	
+        	//NEED TO SET SOME While loops or something to check for valid input
+        	LocalDate date = null;
+        	while (date == null) {
+        		System.out.println("Enter Date (YYYY/MM/DD): ");               
+                String dateStr = input.nextLine().trim();
+                try {
+                	date = LocalDate.parse(dateStr, ISO);
+                }
+                catch (DateTimeParseException e) {
+                	System.out.println("Invalid date format. Please follow the format Year/Month/Date (YYYY/MM/DD).");
+                }                        		
+        	}
+        	//making this a method instead of doing it 10 times for integers...
             System.out.println("Enter activity type (Run, Bike, Swim, Weights): ");
-            String type = input.nextLine().trim();
+            String type = input.nextLine().trim().toLowerCase();
 
-            System.out.println("Enter duration (minutes): ");
-            int duration = Integer.parseInt(input.nextLine().trim());
+            //System.out.println("Enter duration (minutes): ");
+            String durationPrompt = "Enter duration (minutes): ";
+            int duration = checkIntInput(input,durationPrompt);
+            //int duration = Integer.parseInt(input.nextLine().trim());
+            
+            String hrPrompt = "Enter average heart rate: ";
+            int hr = checkIntInput(input,durationPrompt);
 
-            System.out.println("Enter average heart rate: ");
-            int hr = Integer.parseInt(input.nextLine().trim());
+            //System.out.println("Enter average heart rate: ");
+            //int hr = Integer.parseInt(input.nextLine().trim());
 
-            Activity activity = null;
+            Activity activity = null; 
+            String distPrompt = "Enter distance (miles): ";
+            String elevHighPrompt = "Enter max elevation (ft): ";
+            String elevLowPrompt = "Enter lowest elevation (ft): ";
 
             // follow up prompts based on type of activity
             switch (type) {
-                case "Run":
-                    System.out.println("Enter distance (miles): ");
-                    int runDist = Integer.parseInt(input.nextLine().trim());
-                    System.out.println("Enter elevation high (ft): ");
-                    int runHigh = Integer.parseInt(input.nextLine().trim());
-                    System.out.println("Enter elevation low (ft): ");
-                    int runLow = Integer.parseInt(input.nextLine().trim());
+                case "run":
+                	
+                	double runDist = checkDoubleInput(input, distPrompt);
+                    //System.out.println("Enter distance (miles): ");
+                    //int runDist = Integer.parseInt(input.nextLine().trim());
+                    //System.out.println("Enter elevation high (ft): ");
+                    int runHigh = checkIntInput(input,elevHighPrompt);
+                    //System.out.println("Enter elevation low (ft): ");
+                    int runLow = checkIntInput(input,elevLowPrompt);
                     activity = new Run(hero, date, "Run", duration, hr, runDist, runHigh, runLow);
                     break;
 
-                case "Bike":
-                    System.out.println("Enter distance (miles): ");
-                    int bikeDist = Integer.parseInt(input.nextLine().trim());
-                    System.out.println("Enter elevation high (ft): ");
-                    int bikeHigh = Integer.parseInt(input.nextLine().trim());
-                    System.out.println("Enter elevation low (ft): ");
-                    int bikeLow = Integer.parseInt(input.nextLine().trim());         
+                case "bike":
+                    //System.out.println("Enter distance (miles): ");
+                    int bikeDist = checkIntInput(input, distPrompt);
+                    //System.out.println("Enter elevation high (ft): ");
+                    int bikeHigh = checkIntInput(input,elevHighPrompt);
+                    //System.out.println("Enter elevation low (ft): ");
+                    int bikeLow = checkIntInput(input,elevLowPrompt);        
                     Bike bike = new Bike(hero, date, "Bike", duration, hr, bikeDist, bikeHigh, bikeLow);
                     activity = bike;
                     break;
 
-                case "Swim":
-                    System.out.println("Enter distance (yards): ");
-                    int swimDist = Integer.parseInt(input.nextLine().trim());
+                case "swim":
+                    String swimDistPrompt = "Enter distance (yards): ";
+                    int swimDist = checkIntInput(input, swimDistPrompt);
                     Swim swim = new Swim(hero, date, "Swim", duration, hr, swimDist);
                     activity = swim;
                     break;
 
-                case "Weights":
-                    System.out.println("Enter reps: ");
-                    int reps = Integer.parseInt(input.nextLine().trim());
-                    System.out.println("Enter weight (lbs): ");
-                    int weight = Integer.parseInt(input.nextLine().trim());
+                case "weights":
+                    String weightRepPrompt = "Enter reps: ";
+                    int reps = checkIntInput(input,weightRepPrompt);
+                    String weightLbsPrompt = "Enter weight (lbs): ";
+                    int weight = checkIntInput(input, weightLbsPrompt);
                     Weights weights = new Weights(hero, date, "Weights", duration, hr, reps, weight);
                     weights.setTotalVol(weight, reps);
                     activity = weights;
@@ -711,13 +742,15 @@ public class Main {
 				//
 				String heroString = lineStrings[0];
 				//set all values first -- these should ALWAYS have an integer to parse since even at no level there should be 0
-				int heroLevel = Integer.parseInt(lineStrings[1]);
+				int heroLevel = Integer.parseInt(lineStrings[1].trim());
 				int health = Integer.parseInt(lineStrings[2]);
 				int strength = Integer.parseInt(lineStrings[3]);
 				int runSkill = Integer.parseInt(lineStrings[4]);
 				int bikeSkill = Integer.parseInt(lineStrings[5]);
 				int swimSkill = Integer.parseInt(lineStrings[6]);
 				int weightSkill = Integer.parseInt(lineStrings[7]);
+				double exp = Double.parseDouble(lineStrings[6]);
+				int floor = Integer.parseInt(lineStrings[7]);
 						
 				//create hero object based on the name and then generate all of the statistics								
 				//should also check to make sure there isn't already a hero with that name...?
@@ -743,7 +776,8 @@ public class Main {
 							newHero.setBikeSkill(bikeSkill);
 							newHero.setSwimSkill(swimSkill);
 							newHero.setWeightSkill(weightSkill);
-							
+							newHero.setExp(exp);
+							newHero.setFloor(floor);
 							//finally put the new hero in the spot of the one we just chose to ignore
 							fileArray.set(h, newHero);
 							//need to set our replacement check so we don't create a new hero after the replacement
@@ -765,6 +799,8 @@ public class Main {
 					newHero.setBikeSkill(bikeSkill);
 					newHero.setSwimSkill(swimSkill);
 					newHero.setWeightSkill(weightSkill);
+					newHero.setExp(exp);
+					newHero.setFloor(floor);
 					
 					//newHero.printHero();
 					//add to array
@@ -787,7 +823,7 @@ public class Main {
 	
 	
 	
-//--// Methods for printing
+//--// Methods for printing and Input
 	/**
 	 * Method printActivity()
 	 * @param <Activity> activity
@@ -831,6 +867,50 @@ public class Main {
         }
         System.out.println("-----------------------------------");
     }
+	
+	
+	/**
+	 * Method: checkIntInput()
+	 * Function: checks input to make sure it's an integer and reprompts if wrong
+	 * NOTE: I'd like to be able to input decimal places
+	 * @param Scanner input
+	 */
+	
+	public static int checkIntInput(Scanner input, String prompt) {
+		//set null value for integer
+		Integer value = null;
+	    while (value == null) {
+	        System.out.print(prompt);
+	        String line = input.nextLine().trim();
+	        try {	        	
+	            value = Integer.parseInt(line);
+	        } catch (NumberFormatException e) {
+	            System.out.println("Please enter a whole number - no decimal places");
+	        }
+	    }
+	    return value;
+	}
+	
+	/**
+	 * Method: checkDoubleInput()
+	 * Function: checks input to make sure it's a double and reprompts if wrong
+	 * @param Scanner input
+	 */
+	
+	public static double checkDoubleInput(Scanner input, String prompt) {
+		//set null value for integer
+		Double value = null;
+	    while (value == null) {
+	        System.out.print(prompt);
+	        String line = input.nextLine().trim();
+	        try {	        	
+	            value = Double.parseDouble(line);
+	        } catch (NumberFormatException e) {
+	            System.out.println("Please enter a number.");
+	        }
+	    }
+	    return value;
+	}
 
 }
 	
