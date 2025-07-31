@@ -29,7 +29,6 @@ public class Main {
 		//try setting up from file readers
 		ArrayList<Hero> heroes2 = readHeroFile("heroes.csv",scanAlpha);
 		ArrayList<Activity> activities2 = readActivityFile("activityHistory.csv", heroes2);
-		//TO-DO bring in all of the values from the files to the arraylists to be living in memory
 		
 		//heroes2.get(0).printHero();
 		
@@ -51,7 +50,9 @@ public class Main {
 		//printActivity(activities2.get(0));
 		
 		//heroes2.get(0).printHero();
-		Scanner input = new Scanner(System.in);		
+		Scanner input = new Scanner(System.in);	
+		
+		//rock and roll
 		mainMenu(activities2, heroes2, input);
 		
 		
@@ -81,13 +82,13 @@ public class Main {
 			//System.out.println(" 4 - Write hero changes to CSV");
 			*/
 			
-			System.out.println(" 3 - Save & Exit");
+			System.out.println(" 3 - Save & Exit"); //saves current hero list to the file. This should always be most recent version since changes will pass the new array to the mainMenu method
 			System.out.println(" Your choice:");
 			
 			int choice = input.nextInt();
 			//dummy next line
 			input.nextLine();
-			
+			String heroFileName = "heroes.csv";
 			//starting with case 1 of uploading a new activity
 			while(true) {
 				
@@ -95,10 +96,22 @@ public class Main {
 					case 1:
 						//MAKE SURE TO CHECK FOR DUPLICATE HERO NAMES
 						
-						String heroFileName = "heroes.csv";
 						//part of the createNewHero method checks the current arraylist in memory for duplicates
 						Hero newHero = createNewHero(input, heroes);
-						heroes.add(newHero);
+						boolean duplicateCheck = false;
+						for(Hero h : heroes) {
+							if(newHero.getName().equals(h.getName())) {
+								//there was a match! change boolean value
+								duplicateCheck = true;
+							}
+						}
+						//if there is a duplicate, duplicateCheck becomes true and the hero will NOT be added since it's already there
+						if(duplicateCheck==false) {
+							heroes.add(newHero);
+						}
+						
+						
+						//heroes.add(newHero);
 						/*
 						 * dont need this anymore since we will clean this up at the end of session with hero
 						//add it to the heroes file as well before we forget
@@ -134,8 +147,9 @@ public class Main {
 						 * so each time a new activity is uploaded the activity file is just appended
 						 * We will need to update the hero row in the hero file when exiting the action menu
 						 */
+						//fixHeroCSV(heroFileName, heroes);
 						System.out.println("All changes saved. Thanks for playing!");
-						//input.close();	                
+						//input.close(); - exiting system and terminating window instead.	                
 	                    System.exit(0);
 	                    
 	
@@ -162,7 +176,8 @@ public class Main {
 		System.out.println("\n ============ Action Menu (Selected Hero "+hero.getName()+") ===============");
 		System.out.println(" 1 - Check Hero Stats!");
 		System.out.println(" 2 - Upload New Workout");
-		System.out.println(" 3 - Save Hero & Exit to Main Menu");
+		System.out.println(" 3 - Take on Floor Challenge!");
+		System.out.println(" 4 - Save Hero & Exit to Main Menu");
 		System.out.println(" Your choice:");
 		
 		int choice = input.nextInt();
@@ -191,8 +206,13 @@ public class Main {
 				hero.gainExp(heroActivities, heroActivities.get(heroActivities.size()-1));
 				actionMenu(hero,heroes,activityHistory,input);
 				break;
-				
+			
 			case 3:
+				floorChallenge(hero, input);
+				actionMenu(hero,heroes,activityHistory,input);
+				break;
+				
+			case 4:
 				/*
 				 * need to save the hero info here as you exit the program. 
 				 */
@@ -217,11 +237,94 @@ public class Main {
 	
 //--// Gameplay Methods
 	/**
-	 * Method: doChallenge()
-	 * Function: player hero takes on a challenge and is tested against enemy, if they win they go up a floor
+	 * Method: floorChallenge()
+	 * Function: player hero takes on a challenge and is tested against enemy, if they win they go up a floor, lose and they have a CHANCE to drop a floor
 	 * @Param hero
 	 */
 	
+	
+	public static void floorChallenge(Hero hero, Scanner input) {
+		//random number generator. we will use this for dice rolls and chance to drop floor
+        Random rnd = new Random();
+
+        // Generate opponent based on the floor they're on
+        int oppLevel = (hero.getFloor() + rnd.nextInt(1,3) - 1); //this will set an opponent at the floor number + random int between 0-3
+        int oppHealth = (oppLevel * 10) + rnd.nextInt(2,11);      // base 10×level plus 0–10 - ensures that their health won't start at 0
+        int oppStrength = oppLevel * 2 + rnd.nextInt(5);
+        int oppSpeed = (oppLevel * 2) + rnd.nextInt(10);// base 2×level plus 0–4 - opponent strength could be 0
+        
+        //create opponent as new hero for easier logic handling - we won't add this hero to the running memory array or file
+        Hero opponent = new Hero("Floor Opponent");
+        opponent.setLevel(oppLevel);
+        opponent.setHealth(oppHealth);
+        opponent.setStrength(oppStrength);
+        opponent.setSpeed(oppSpeed);
+
+        System.out.printf("A level %d enemy has appeared! (HP:%d STR:%d)%n",
+                          oppLevel, oppHealth, oppStrength);
+
+        // Combat loop - hero and enemy hero will do damage to eachother's health based on their (strength stat / 3) * rnd.nextInt(1,6) which simmulates rolling dice
+        //check health in while loop
+        int heroHealth = hero.getHealth();
+        int enemyHealth = opponent.getHealth();
+        
+        while (heroHealth > 0 && enemyHealth > 0) {
+        	//see who attacks first based on speed stat
+        	if (hero.getSpeed() >= opponent.getSpeed()) {
+        		// Hero attacks
+                int heroDamage = (hero.getStrength() / 3) * rnd.nextInt(1,6);
+                enemyHealth= enemyHealth - heroDamage;
+                System.out.printf("%s hits for %d damage! Opponent HP now %d.%n", hero.getName(), heroDamage, enemyHealth);
+                if (enemyHealth <= 0) {
+                	break;
+                }
+                // Opponent attacks
+                int oppDamage = (opponent.getStrength() / 3) * rnd.nextInt(1,6);
+                heroHealth = heroHealth - oppDamage;
+                System.out.printf("Opponent hits for %d damage! %s HP now %d.%n", oppDamage, hero.getName(), heroHealth);
+                if(heroHealth <=0) {
+                	break;
+                }
+        	}
+        	else if (hero.getSpeed() < opponent.getSpeed()) {
+        		// Opponent attacks
+                int oppDamage = (opponent.getStrength() / 3) * rnd.nextInt(1,6);
+                heroHealth = heroHealth - oppDamage;
+                System.out.printf("Opponent hits for %d damage! %s HP now %d.%n", oppDamage, hero.getName(), heroHealth);
+                if(heroHealth <=0) {
+                	break;
+                }
+             // Hero attacks
+                int heroDamage = (hero.getStrength() / 3) * rnd.nextInt(1,6);
+                enemyHealth= enemyHealth - heroDamage;
+                System.out.printf("%s hits for %d damage! Opponent HP now %d.%n", hero.getName(), heroDamage, enemyHealth);
+                if (enemyHealth <= 0) {
+                	break;
+                }
+        	}
+
+            // prompt user to hit enter to repeat loop
+        	System.out.print("\n Press Enter to attack again! ");
+        	input.nextLine();
+        	System.out.println();
+        }
+
+        if (heroHealth > 0) {
+            System.out.println("\n Victory! You’ve cleared the floor.");
+            hero.advanceFloor();
+
+        } else {
+
+        	int chanceDrop = rnd.nextInt(1,4);
+        	if (chanceDrop == 1) {
+        		hero.dropFloor();
+        		System.out.println("\n Defeat - We'll get them next time. You retreated down a floor to recover...");
+        	}
+        	else {
+        		System.out.println("\n Defeat - We'll get them next time. You retreat into the darkness to return soon ...");
+        	}
+        }
+    }
 	
 	
 	
@@ -234,11 +337,53 @@ public class Main {
 	 */
 	public static void writeHeroCSV(String fileName, ArrayList<Hero> heroes, Hero hero) {
 		//first find the selected hero in the ArrayList and make sure it's updated to the correct value
+		/*
 		for(Hero h : heroes) {
 			if(h.getName().equals(hero.getName())) {
 				h = hero;
 			}
 		}
+		*/
+		
+		for (int i=0;i<heroes.size();i++) {
+			if(heroes.get(i).getName().equals(hero.getName())) {
+				//replace duplicate with updated values
+				heroes.set(i, hero);
+			}
+		}
+		
+		//write the 9 columns ALL heroes will have
+		String header = "hero,level,HP,strength,speed,runSkill,bikeSkill,swimSkill,weightSkill,exp,floor";
+		//path to file
+		Path filePath = Path.of("C:\\temp\\"+fileName);
+		
+		//use buffered writer to create new hero file
+		try (BufferedWriter fw = Files.newBufferedWriter(filePath,StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+
+            // 1) Write header
+            fw.write(header);
+            fw.newLine();
+
+            // 2) Write each activity
+            for (Hero h : heroes) {
+    			String megaHeroString = (h.getName()+","+h.getLevel()+","+h.getHealth()+","+h.getStrength()+","+h.getSpeed()+","+h.getRunSkill()+","+h.getBikeSkill()+","+h.getSwimSkill()+","+h.getWeightSkill()+","+h.getExp()+","+h.getFloor());
+                fw.write(megaHeroString);
+                fw.newLine();
+            }
+        }
+        catch (IOException ioe) {
+            System.err.println("Failed writing CSV: " + ioe.getMessage());
+        }
+	
+		
+	}
+	
+	/**
+	 * Method: fixHeroCSV()
+	 * @param fileName, heroes
+	 * function: after reading a hero file, it will write the edited hero list (deduplicated) to the hero file that matches whats in memory
+	 */
+	public static void fixHeroCSV(String fileName, ArrayList<Hero> heroes) {
 		
 		//write the 9 columns ALL heroes will have
 		String header = "hero,level,HP,strength,speed,runSkill,bikeSkill,swimSkill,weightSkill,exp,floor";
@@ -374,6 +519,7 @@ public class Main {
 	
 	}
 	
+	
 	/**
 	 * Method: appendHero()
 	 * Function: appends a single hero to the heroes file
@@ -504,7 +650,7 @@ public class Main {
             //int duration = Integer.parseInt(input.nextLine().trim());
             
             String hrPrompt = "Enter average heart rate: ";
-            int hr = checkIntInput(input,durationPrompt);
+            int hr = checkIntInput(input,hrPrompt);
 
             //System.out.println("Enter average heart rate: ");
             //int hr = Integer.parseInt(input.nextLine().trim());
@@ -586,10 +732,31 @@ public class Main {
 	private static Hero createNewHero(Scanner input, ArrayList<Hero> heroes) {
 		System.out.print("Enter hero name: ");
         String name = input.nextLine();
-        //creates a new hero with all default values
         Hero newHero = new Hero(name);
-        // you could prompt for other starting stats here...
+        for(Hero h : heroes) {
+        	if(h.getName().equals(name)) {
+    			System.out.println("Duplicate heroes found!! Please select which you would like to use: ");
+    			System.out.println("A) "+h.getName()+" Lvl: "+h.getLevel());
+    			System.out.println("B) New Hero: "+name+" Lvl: 1");
+    			String choice = input.nextLine().toLowerCase();
+    			
+    			switch(choice) {
+				case "a":
+					newHero = h;
+				case "b":
+					//do nothing
+					break;
+    			}
+					
+    				
+        	}
+ 
+        }
+      //creates a new hero with all default values
+		//Hero newHero = new Hero(name);
         return newHero;
+        
+        
 	}
 	
 
@@ -671,7 +838,7 @@ public class Main {
 				}
 				
 				else if(actTypeString.equals("Swim")) {
-					int distance = Integer.parseInt(lineStrings[5]);
+					double distance = Double.parseDouble(lineStrings[5]);
 					Swim readAct = new Swim(temp,date,actTypeString,duration,heartRate,distance);
 					fileArray.add(readAct); 
 				}
@@ -696,7 +863,7 @@ public class Main {
 			
 		}
 		catch (IOException ioe){
-			System.out.println("something went wrong with reading the file");
+			System.out.println("something went wrong with reading the file. If it did not exist, the program will create the necessary file at "+filePath+" when it does it's first save.");
 			return fileArray;
 		}
 		
@@ -816,7 +983,7 @@ public class Main {
 			
 		}
 		catch (IOException ioe){
-			System.out.println("something went wrong with reading the file");
+			System.out.println("something went wrong with reading the file. If it did not exist, the program will create the necessary file at "+filePath+" when it does it's first save.");
 			return fileArray;
 		}
 	}
