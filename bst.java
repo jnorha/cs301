@@ -1,8 +1,8 @@
 /**
  *  The BST class
- *  @author:
+ *  @author: Josh Daniels
  *  @Created: 8/6/2025
- *  @Revised:
+ *  @Revised: 8/9/2025
  */
 
 import java.util.Random;
@@ -91,18 +91,20 @@ public class  BST {
 		else {
 			//search through nodes for one without a child in the appropriate spot
 			TreeNode current = this.root;
+			
+			//System.out.println("This is the root: "+current.value);
 			//set null tree node that will serve as parent as we move through branches
-			TreeNode parent = new TreeNode(null);
+			TreeNode parent = null;
 			//go through everything and find the right spot
-			while(current!=null) {
+			while(current != null) {
+				parent = current;
+				//System.out.println("This is the latest node to be added: "+current.value);
 				int result = element.compareTo(current.value);
 				if (result < 0) {
-					parent = current;
-					current = current.left;
+					current = parent.left;
 				}
 				else if (result > 0) {
-					parent = current;
-					current = current.right;
+					current = parent.right;
 				}
 				// if it makes it past both of those it should be equal to the node meaning it's a duplicated value
 				else {
@@ -112,21 +114,96 @@ public class  BST {
 			}
 			//while loop breaks when either left or right is null
 			//create the new node and attach it to the parent
-			if (element.compareTo(current.value) < 0 ) {
+			if (element.compareTo(parent.value) < 0 ) {
 				parent.left = new TreeNode(element);				
 			}
 			else {
 				parent.right = new TreeNode(element);
 			}
 			//if we get this far, element has been inserted
-			System.out.println("Element" + element + " successfully inserted into tree right below "+ parent);
+			//System.out.println("Element" + element + " successfully inserted into tree right below "+ parent);
 			return true;
+		}
+	}
+	
+	/**
+	 * Method: insert with recursion (insertR())
+	 */
+	public boolean insert(E element) {
+        if (root == null) {
+            root = new TreeNode<>(element);
+            return true;
+        }
+        return insertRec(root, element);
+    }
+
+    /**
+     * Recursive worker.  
+     * @param node    the subtree root to inspect
+     * @param element the value to insert
+     * @return true if inserted, false if duplicate found
+     */
+    private boolean insertRec(TreeNode<E> node, E element) {
+        int cmp = element.compareTo(node.value);
+        if (cmp == 0) {
+            // duplicate — stop
+            return false;
+        } 
+        else if (cmp < 0) {
+            // should go left
+            if (node.left == null) {
+                node.left = new TreeNode<>(element);
+                return true;
+            } else {
+                return insertRec(node.left, element);
+            }
+        } 
+        else {
+            // should go right
+            if (node.right == null) {
+                node.right = new TreeNode<>(element);
+                return true;
+            } else {
+                return insertRec(node.right, element);
+            }
+        }
+    }
+	
+	
+	/**
+	 * Method: in-order Traverse: inOrdTrav()
+	 * Function: traverses a binary tree printing out the value of each node as it moves along
+	 * @param binary search tree
+	 */
+	
+	/*
+	 * basic psuedo code:
+	 * x is root of subtree
+	 * if x != null
+	 * 	then Inorder(left(x));
+	 * 	     output key (x);
+	 * 	     Inorder(right(x));
+	 * 
+	 */
+	
+	public void inOrdTrav() {
+		inOrdPrint(this.root);
+	}
+	
+	/**
+	 * Method: inOrdPrint()
+	 * Function: helper function for in order traversing a bst
+	 * @param node
+	 */
+	
+	public <E> void inOrdPrint(TreeNode node) {
+		if(node!=null) {
+			inOrdPrint(node.left);
+			System.out.print(node.value + " "); //this one prints actual value of node yada yada
+			inOrdPrint(node.right);
 		}
 	}
 }
 
 	 
 	
-
-
-
