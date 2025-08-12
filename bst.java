@@ -31,28 +31,33 @@ public class  BST {
 	 * Function: searches through a binary search tree for value and returns true or false
 	 * @param E element
 	 */
-	/*
-	 * 
-	 // this one doesn't work without helper
+	
+	 
+
 	public <E extends Comparable> Boolean  search(E element) {
 		TreeNode current = this.root;
 		//base case
-		if (current==null) {
-			return false;
+		while(current != null) {
+			int result = element.compareTo(current.value);
+			if (result < 0) {
+				current = current.left;
+			}
+			else if (result > 0) {
+				current = current.right;
+			}
+			//only other option is if it matches
+			else {
+				return true;
+			}
 		}
-		if (element.compareTo(current.value) < 0) {
-			search((current.left).value);
-		}
-		else if(element.compareTo(current.value) > 0) {
-			search((current.right).value);
-		}
-		//didn't like my else statement here, so leaving it as true if it gets to this point but it SHOULDNT hit this one....
-		System.out.println("Node didnt match anything and it just kept going...");
-		return true;
+		
+		//didn't like my else statement here, so leaving it as false if it gets to this point but it should only hit this one if it doesnt find it
+		//System.out.println("Node didnt match anything and it just kept going...");
+		return false;
 	}
-	*/
 	
-	public <E extends Comparable> Boolean  search(E element) {
+	
+	public <E extends Comparable> Boolean  searchRec(E element) {
 		Boolean result = searchHelper(element, this.root);
 		return result;
 	}
@@ -65,12 +70,15 @@ public class  BST {
 		}
 
 		int result = value.compareTo(subroot.value);
-		if(result < 0)
+		if(result < 0) {
 			return searchHelper(value, subroot.left);
-		else if (result > 0)
+		}
+		else if (result > 0) {
 			return searchHelper(value, subroot.right);
-		else
+		}
+		else {
 			return true;
+		}
 
 	}
 	
@@ -129,9 +137,9 @@ public class  BST {
 	/**
 	 * Method: insert with recursion (insertR())
 	 */
-	public boolean insert(E element) {
+	public <E extends Comparable> Boolean insertR(E element) {
         if (root == null) {
-            root = new TreeNode<>(element);
+            root = new TreeNode(element);
             return true;
         }
         return insertRec(root, element);
@@ -143,29 +151,30 @@ public class  BST {
      * @param element the value to insert
      * @return true if inserted, false if duplicate found
      */
-    private boolean insertRec(TreeNode<E> node, E element) {
-        int cmp = element.compareTo(node.value);
-        if (cmp == 0) {
-            // duplicate — stop
-            return false;
-        } 
-        else if (cmp < 0) {
-            // should go left
+    private <E extends Comparable> Boolean insertRec(TreeNode node, E element) {
+        int result = element.compareTo(node.value);
+        if (result < 0) {
+            // check to see if nothing is left, if so put there, otherwise recursive
             if (node.left == null) {
-                node.left = new TreeNode<>(element);
+                node.left = new TreeNode(element);
                 return true;
             } else {
                 return insertRec(node.left, element);
             }
         } 
-        else {
-            // should go right
+        else if(result > 0){
+            // check to see if nothing is right, if so put there, otherwise recursive
             if (node.right == null) {
-                node.right = new TreeNode<>(element);
+                node.right = new TreeNode(element);
                 return true;
             } else {
                 return insertRec(node.right, element);
             }
+        }
+        
+        else {
+        	// only other scenario is duplicate
+        	return false;
         }
     }
 	
