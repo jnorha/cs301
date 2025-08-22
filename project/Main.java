@@ -877,6 +877,41 @@ public class Main {
 		
 	}
 	
+	
+	/**
+	 * Method: activitiesForHero()
+	 * Function: takes the full list of activities and returns only those belonging to the hero
+	 * @param allActivities
+	 * @param hero
+	 * @return ArrayList of activities for the given hero
+	 */
+	public static ArrayList<Activity> activitiesForHero(ArrayList<Activity> allActivities, Hero hero) {
+	    ArrayList<Activity> heroArray = new ArrayList<>();
+	    if (allActivities == null || hero == null) {
+	    	System.out.println("Please provide list of activities and the name of the hero and try again. Something went wrong.");
+	    	return heroArray;
+	    }
+
+	    String targetName = hero.getName(); 
+
+	    for (Activity act : allActivities) {
+	        if (act == null) {
+	        	continue;
+	        }
+
+	        // Assuming Activity holds a Hero reference and Hero has getName()
+	        Hero owner = act.getCharacter();
+	        if (owner != null && targetName.equals(owner.getName())) {
+	        	heroArray.add(act);
+	        }
+	    }
+	    //sort by date
+	    //Collections.sort(heroArray, Comparator.comparing(Activity::getDate));
+
+	    return heroArray;
+	}
+	
+	
 	/**
 	 * Method: ingests hero file and returns an object arraylist
 	 * @params input filename
